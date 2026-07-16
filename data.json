@@ -533,6 +533,18 @@
       "projectId": "pmrnuzraz16",
       "month": "2026-10",
       "pct": 50
+    },
+    {
+      "consultantId": "cmrnuhtp9213",
+      "projectId": "pmrnuzraz16",
+      "month": "2026-11",
+      "pct": 50
+    },
+    {
+      "consultantId": "cmrnuhtp9213",
+      "projectId": "pmrnuzraz16",
+      "month": "2026-12",
+      "pct": 50
     }
   ]
 }
