@@ -77,6 +77,8 @@
   .badge.prospecto{background:#fdeede;color:#c25a12}
   .pcard .prow{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;border-top:1px dashed var(--line)}
   .pcard .prow span:last-child{font-weight:700;color:var(--navy)}
+  .pgrouphdr{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:8px 0 1px;padding-top:6px;border-top:1px dashed var(--line);display:flex;align-items:center}
+  .pgrouphdr .pill{width:8px;height:8px}
   .pmeta{display:flex;gap:16px;margin:10px 0 6px;font-size:12px;color:var(--muted)}
   .pmeta b{color:var(--navy);font-size:15px;display:block}
   .btn{border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:var(--navy);border:1px solid var(--line)}
@@ -438,7 +440,8 @@ function renderAlloc(){
   var body='<tbody>';
   AREAS.forEach(function(a){
     var list=state.consultants.filter(function(c){return c.area===a.id;});
-    body+='<tr class="area-row"><td colspan="7"><span class="abadge" style="background:'+a.color+'"></span>'+a.name+' · '+list.length+'</td></tr>';
+    var gUtil=list.length?Math.round(list.reduce(function(s,c){return s+months.reduce(function(ss,m){return ss+totalFor(c.id,m);},0)/6;},0)/list.length):0;
+    body+='<tr class="area-row"><td colspan="7"><span class="abadge" style="background:'+a.color+'"></span>'+a.name+' · '+list.length+(list.length?' · Utilización prom. '+gUtil+'%':'')+'</td></tr>';
     if(!list.length){ body+='<tr><td class="name-col" style="color:var(--muted);font-weight:400">Sin consultores en esta área</td>'+months.map(function(){return '<td class="cell" style="background:#fafbfc;color:#cbd5e1">—</td>';}).join('')+'</tr>'; return; }
     list.forEach(function(c){
       body+='<tr class="crow" data-c="'+c.id+'"><td class="name-col">'+c.name+'<small>'+a.name+'<span class="chev">▸ ver proyectos</span></small></td>';
@@ -504,7 +507,9 @@ function renderProjects(){
     var rem=endIdx==null?null:Math.max(0,endIdx-nowIdx+1);
     var remColor=rem==null?'var(--navy)':(rem<=0?'#a5342a':(rem<=1?'#b06a1a':'var(--navy)'));
     var endLbl=endIdx==null?'':monthLabel(Math.floor(endIdx/12)+'-'+String(endIdx%12+1).padStart(2,'0'));
-    var rows=people.map(function(x){return '<div class="prow"><span>'+x.c.name+'</span><span>'+x.avg+'%</span></div>';}).join('')||'<div class="prow" style="color:var(--muted)"><span>Sin asignaciones aún</span><span></span></div>';
+    var rows='';
+    AREAS.forEach(function(ar){var grp=people.filter(function(x){return x.c.area===ar.id;});if(!grp.length)return;rows+='<div class="pgrouphdr" style="color:'+ar.color+'"><span class="pill" style="background:'+ar.color+'"></span>'+ar.name+'</div>';grp.forEach(function(x){rows+='<div class="prow"><span>'+x.c.name+'</span><span>'+x.avg+'%</span></div>';});});
+    if(!rows) rows='<div class="prow" style="color:var(--muted)"><span>Sin asignaciones aún</span><span></span></div>';
     var el=document.createElement('div'); el.className='pcard'; el.style.borderTopColor=p.color;
     el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:start"><div><h3>'+p.name+'</h3><div class="client">'+(p.client||'—')+'</div></div><span class="badge '+p.status+'">'+p.status+'</span></div>'+
       '<div class="pmeta"><div><b>'+people.length+'</b>consultores</div><div><b>'+fteAvg+'</b>FTE prom.</div><div title="'+(endLbl?'Termina '+endLbl:'')+'"><b style="color:'+remColor+'">'+(rem==null?'—':rem)+'</b>meses restantes</div></div>'+rows+
