@@ -780,7 +780,25 @@
       "consultantId": "cmrnxpfv7421",
       "projectId": "pmrnuhtpa668",
       "month": "2026-08",
-      "pct": 0
+      "pct": 50
+    },
+    {
+      "consultantId": "cmrnxpfv7421",
+      "projectId": "pmrnuhtpa668",
+      "month": "2026-09",
+      "pct": 100
+    },
+    {
+      "consultantId": "cmrnxpfv7421",
+      "projectId": "pmrnuhtpa668",
+      "month": "2026-10",
+      "pct": 100
+    },
+    {
+      "consultantId": "cmrnxpfv7421",
+      "projectId": "pmrnuhtpa668",
+      "month": "2026-11",
+      "pct": 10
     }
   ]
 }
