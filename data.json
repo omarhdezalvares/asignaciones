@@ -1023,7 +1023,7 @@
       "consultantId": "cmrnuhtp9103",
       "projectId": "pmrnuhtpa178",
       "month": "2026-08",
-      "pct": 50
+      "pct": 25
     },
     {
       "consultantId": "cmrnuhtp9103",
@@ -1062,10 +1062,94 @@
       "pct": 25
     },
     {
+      "consultantId": "cmrnuhtp9507",
+      "projectId": "pmrnuhtpa78",
+      "month": "2026-08",
+      "pct": 100
+    },
+    {
+      "consultantId": "cmrnuhtp9507",
+      "projectId": "pmrnuhtpa78",
+      "month": "2026-09",
+      "pct": 100
+    },
+    {
+      "consultantId": "cmrnuhtp9507",
+      "projectId": "pmrnuhtpa78",
+      "month": "2026-10",
+      "pct": 100
+    },
+    {
       "consultantId": "cmrnuhtp910",
-      "projectId": "pmrnuhtp9941",
+      "projectId": "pmrnuhtpa659",
+      "month": "2026-09",
+      "pct": 25
+    },
+    {
+      "consultantId": "cmrnuhtp910",
+      "projectId": "pmrnuhtpa659",
+      "month": "2026-10",
+      "pct": 25
+    },
+    {
+      "consultantId": "cmrnuhtp910",
+      "projectId": "pmrnuhtpa659",
+      "month": "2026-11",
+      "pct": 25
+    },
+    {
+      "consultantId": "cmrnuhtp910",
+      "projectId": "pmrnuhtpa659",
+      "month": "2026-12",
+      "pct": 25
+    },
+    {
+      "consultantId": "cmrnuhtp910",
+      "projectId": "pmrnuhtpa659",
+      "month": "2027-01",
+      "pct": 25
+    },
+    {
+      "consultantId": "cmrnuhtp910",
+      "projectId": "pmrnuhtpa659",
+      "month": "2026-08",
+      "pct": 25
+    },
+    {
+      "consultantId": "cmrnuhtp9103",
+      "projectId": "pmrnuhtpa927",
+      "month": "2026-08",
+      "pct": 75
+    },
+    {
+      "consultantId": "cmrnuhtp9806",
+      "projectId": "pmrnuhtpa927",
       "month": "2026-08",
       "pct": 50
+    },
+    {
+      "consultantId": "cmrnuhtp9806",
+      "projectId": "pmrnuhtpa927",
+      "month": "2026-09",
+      "pct": 25
+    },
+    {
+      "consultantId": "cmrnuhtp9806",
+      "projectId": "pmrnuhtpa927",
+      "month": "2026-10",
+      "pct": 25
+    },
+    {
+      "consultantId": "cmrnuhtp9806",
+      "projectId": "pmrnuhtpa927",
+      "month": "2026-11",
+      "pct": 25
+    },
+    {
+      "consultantId": "cmrnxohsz912",
+      "projectId": "pmrnuhtpa927",
+      "month": "2026-08",
+      "pct": 75
     }
   ]
 }
