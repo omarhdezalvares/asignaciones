@@ -261,6 +261,13 @@
       "client": "Chilchota",
       "status": "activo",
       "color": "#2b8fd0"
+    },
+    {
+      "id": "pmrnw3n4c548",
+      "name": "Seguimiento de equipo || Interno",
+      "client": "Grupo Staff",
+      "status": "activo",
+      "color": "#39bec9"
     }
   ],
   "assignments": [
