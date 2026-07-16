@@ -157,6 +157,7 @@
   <div class="tab active" data-view="consultores"><span class="dot" style="background:var(--teal)"></span>Consultores</div>
   <div class="tab" data-view="proyectos"><span class="dot" style="background:var(--blue)"></span>Proyectos</div>
   <div class="tab" data-view="editor"><span class="dot" style="background:var(--orange)"></span>Editar datos</div>
+  <div class="tab" data-view="config"><span class="dot" style="background:#8e6fd0"></span>Configuración</div>
 </div>
 
 <main>
@@ -193,27 +194,6 @@
   </section>
 
   <section class="view" id="view-editor">
-    <div class="card sync-card"><div style="padding:16px 18px">
-      <h2 style="margin:0 0 6px;color:var(--navy);font-size:15px">Sincronización con GitHub (datos compartidos)</h2>
-      <div class="hint">Sin token la app es <b>solo lectura</b> del <code>data.json</code> publicado. Para <b>guardar cambios que todos vean</b>, pega un token de GitHub con permiso <b>Contents: Read and write</b> sobre este repositorio. El token se guarda solo en <b>este navegador</b>, nunca en el repo.</div>
-      <div class="form-row">
-        <div class="fld" style="flex:1;min-width:280px"><label>Token de GitHub (fine-grained)</label><input type="password" id="ghToken" placeholder="github_pat_..."></div>
-        <div class="fld"><label>Owner</label><input id="ghOwner" style="width:150px"></div>
-        <div class="fld"><label>Repo</label><input id="ghRepo" style="width:150px"></div>
-        <div class="fld"><label>Branch</label><input id="ghBranch" style="width:90px"></div>
-        <div class="fld"><label>Archivo</label><input id="ghPath" style="width:110px"></div>
-      </div>
-      <div class="form-row" style="margin-bottom:6px">
-        <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)"><input type="checkbox" id="ghAuto" style="width:auto"> Publicar automáticamente al editar</label>
-        <div class="spacer" style="flex:1"></div>
-        <button class="btn navy" id="ghSave">Guardar configuración</button>
-        <button class="btn primary" id="ghPublish">⬆ Publicar ahora</button>
-        <button class="btn" id="ghReload">↻ Recargar desde GitHub</button>
-        <button class="btn danger" id="ghClear">Borrar token</button>
-      </div>
-      <div class="statusline info" id="ghStatusLine">Modo local: los cambios se guardan en este navegador. Configura el token para compartirlos.</div>
-    </div></div>
-
     <div class="toolbar">
       <button class="btn navy" id="exportXlsx">⬇ Exportar a Excel</button>
       <label class="btn primary" for="importXlsx">⬆ Importar desde Excel</label>
@@ -259,6 +239,39 @@
     </div></div></div>
   </section>
 
+  <section class="view" id="view-config">
+    <div class="card sync-card"><div style="padding:16px 18px">
+      <h2 style="margin:0 0 6px;color:var(--navy);font-size:15px">Sincronización con GitHub (datos compartidos)</h2>
+      <div class="hint">Sin token la app es <b>solo lectura</b> del <code>data.json</code> publicado. Para <b>guardar cambios que todos vean</b>, pega un token de GitHub con permiso <b>Contents: Read and write</b> sobre este repositorio. El token se guarda solo en <b>este navegador</b>, nunca en el repo.</div>
+      <div class="form-row">
+        <div class="fld" style="flex:1;min-width:280px"><label>Token de GitHub (fine-grained)</label><input type="password" id="ghToken" placeholder="github_pat_..."></div>
+        <div class="fld"><label>Owner</label><input id="ghOwner" style="width:150px"></div>
+        <div class="fld"><label>Repo</label><input id="ghRepo" style="width:150px"></div>
+        <div class="fld"><label>Branch</label><input id="ghBranch" style="width:90px"></div>
+        <div class="fld"><label>Archivo</label><input id="ghPath" style="width:110px"></div>
+      </div>
+      <div class="form-row" style="margin-bottom:6px">
+        <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)"><input type="checkbox" id="ghAuto" style="width:auto"> Publicar automáticamente al editar</label>
+        <div class="spacer" style="flex:1"></div>
+        <button class="btn navy" id="ghSave">Guardar configuración</button>
+        <button class="btn primary" id="ghPublish">⬆ Publicar ahora</button>
+        <button class="btn" id="ghReload">↻ Recargar desde GitHub</button>
+        <button class="btn danger" id="ghClear">Borrar token</button>
+      </div>
+      <div class="statusline info" id="ghStatusLine">Modo local: los cambios se guardan en este navegador. Configura el token para compartirlos.</div>
+    </div></div>
+
+    <div class="card"><div style="padding:16px 18px">
+      <h2 style="margin:0 0 6px;color:var(--navy);font-size:15px">Periodo y datos de ejemplo</h2>
+      <div class="hint">El <b>inicio del periodo</b> también está arriba a la derecha. “Restablecer ejemplo” vuelve a los datos de muestra (solo en este navegador; no publica).</div>
+      <div class="form-row" style="margin-bottom:0">
+        <div class="fld"><label>Inicio del periodo (6 meses)</label><input type="month" id="startMonth2"></div>
+        <div class="spacer" style="flex:1"></div>
+        <button class="btn danger" id="resetBtn2">↺ Restablecer a datos de ejemplo</button>
+      </div>
+    </div></div>
+  </section>
+
   <div class="foot">Grupo Staff · Business Process &amp; IT Consulting — Herramienta interna de proyección de capacidad</div>
 </main>
 
@@ -272,7 +285,8 @@
 var AREAS = [
   {id:'fin', name:'Consultor Finanzas', color:'#2b8fd0', tag:'fin'},
   {id:'scm', name:'Consultor SCM',      color:'#39bec9', tag:'scm'},
-  {id:'dev', name:'Desarrollador',      color:'#e8722a', tag:'dev'}
+  {id:'dev', name:'Desarrollador',      color:'#e8722a', tag:'dev'},
+  {id:'pm',  name:'Project Manager',    color:'#8e6fd0', tag:'pm'}
 ];
 var PALETTE = ['#2b8fd0','#39bec9','#5cb85c','#e8722a','#f4c430','#8e6fd0','#d0567f','#1a9c8f','#c2884a','#5a7fd0'];
 var STORAGE_KEY = 'gstaff_alloc_v1';
@@ -298,7 +312,8 @@ function seed(){
     ['Sergio David Padilla Allende','scm'],
     ['Adrian Ibi Gaspar Hernandez','dev'],['Andres Homero Villanueva Villalpando','dev'],['Arath Samir Mu Yee','dev'],
     ['Francisco Rodriguez Colio','dev'],['Gabriel Ernesto Ríos Sánchez','dev'],['Jorge García','dev'],
-    ['Luis Rodrigo Fajardo Sondón','dev'],['René Omar Caro Rangel','dev'],['Valentín Moreno Rodríguez','dev']
+    ['Luis Rodrigo Fajardo Sondón','dev'],['René Omar Caro Rangel','dev'],['Valentín Moreno Rodríguez','dev'],
+    ['Diana Robles Vega','pm'],['Héctor Salazar Pineda','pm']
   ].map(function(c,i){return {id:'c'+(i+1), name:c[0], area:c[1]};});
   var projs = [
     ['D365 Finance - CEMEX','CEMEX','activo'],['Migración SCM D365 - Bimbo','Grupo Bimbo','activo'],
@@ -314,7 +329,8 @@ function seed(){
     c10:[['p2',50],['p8',40]], c11:[['p5',100]], c12:[['p2',70]],
     c13:[['p5',60],['p7',40]], c14:[['p4',80],['p6',20]], c15:[['p1',60],['p4',50]],
     c16:[['p2',70],['p7',30]], c17:[['p3',100]], c18:[['p5',80],['p8',20]],
-    c19:[['p1',50],['p6',30]], c20:[['p4',100]], c21:[['p7',60]], c22:[['p2',60],['p8',30]]
+    c19:[['p1',50],['p6',30]], c20:[['p4',100]], c21:[['p7',60]], c22:[['p2',60],['p8',30]],
+    c23:[['p1',30],['p2',30],['p7',20]], c24:[['p4',30],['p5',30],['p8',20]]
   };
   var ramp = [ [1,1,1,1,1,1], [.4,.7,1,1,1,1], [1,1,1,.8,.6,.4], [1,1,1,1,1,1] ];
   var assignments=[]; var months=monthList('2026-08');
@@ -415,8 +431,9 @@ function renderAlloc(){
   var head='<thead><tr><th class="name-col">Consultor</th>'+months.map(function(m){return '<th>'+monthLabel(m)+'</th>';}).join('')+'</tr></thead>';
   var body='<tbody>';
   AREAS.forEach(function(a){
-    var list=state.consultants.filter(function(c){return c.area===a.id;}); if(!list.length) return;
+    var list=state.consultants.filter(function(c){return c.area===a.id;});
     body+='<tr class="area-row"><td colspan="7"><span class="abadge" style="background:'+a.color+'"></span>'+a.name+' · '+list.length+'</td></tr>';
+    if(!list.length){ body+='<tr><td class="name-col" style="color:var(--muted);font-weight:400">Sin consultores en esta área</td>'+months.map(function(){return '<td class="cell" style="background:#fafbfc;color:#cbd5e1">—</td>';}).join('')+'</tr>'; return; }
     list.forEach(function(c){
       body+='<tr class="crow" data-c="'+c.id+'"><td class="name-col">'+c.name+'<small>'+a.name+'<span class="chev">▸ ver proyectos</span></small></td>';
       months.forEach(function(m){
@@ -569,7 +586,7 @@ document.getElementById('downloadTemplate').addEventListener('click',function(){
   XLSX.writeFile(wb,'Plantilla_Asignacion_GrupoStaff.xlsx');
 });
 document.getElementById('importXlsx').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(ev){try{importFromWorkbook(XLSX.read(ev.target.result,{type:'array'}));}catch(err){alert('No se pudo leer: '+err.message);}e.target.value='';};rd.readAsArrayBuffer(f);});
-function areaIdFromName(n){n=(n||'').toLowerCase();if(n.indexOf('finan')>=0)return 'fin';if(n.indexOf('scm')>=0||n.indexOf('supply')>=0)return 'scm';return 'dev';}
+function areaIdFromName(n){n=(n||'').toLowerCase().trim();if(n.indexOf('project')>=0||n.indexOf('manager')>=0||n.indexOf('gerente')>=0||n==='pm')return 'pm';if(n.indexOf('finan')>=0)return 'fin';if(n.indexOf('scm')>=0||n.indexOf('supply')>=0)return 'scm';return 'dev';}
 function importFromWorkbook(wb){
   var shC=wb.Sheets['Consultores'],shP=wb.Sheets['Proyectos'],shA=wb.Sheets['Asignaciones'];
   if(!shC||!shP||!shA){alert('El archivo debe tener las hojas: Consultores, Proyectos y Asignaciones.');return;}
@@ -608,8 +625,10 @@ document.getElementById('ghReload').addEventListener('click',function(){setStatu
 document.getElementById('ghClear').addEventListener('click',function(){localStorage.removeItem(TOKEN_KEY);document.getElementById('ghToken').value='';setStatus('info','Token borrado de este navegador. Modo solo lectura.');});
 
 /* ============================ NAV & INIT ============================ */
-Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});t.classList.add('active');var v=t.getAttribute('data-view');document.getElementById('view-'+v).classList.add('active');if(v==='editor')renderEditor();});});
-document.getElementById('startMonth').addEventListener('change',function(){state.config.startMonth=this.value;save();renderAll();});
+Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});t.classList.add('active');var v=t.getAttribute('data-view');document.getElementById('view-'+v).classList.add('active');if(v==='editor')renderEditor();if(v==='config'){fillGhForm();document.getElementById('startMonth2').value=state.config.startMonth;}});});
+document.getElementById('startMonth').addEventListener('change',function(){state.config.startMonth=this.value;var s2=document.getElementById('startMonth2');if(s2)s2.value=this.value;save();renderAll();});
+document.getElementById('startMonth2').addEventListener('change',function(){state.config.startMonth=this.value;document.getElementById('startMonth').value=this.value;save();renderAll();});
+document.getElementById('resetBtn2').addEventListener('click',function(){document.getElementById('resetBtn').click();});
 function renderAll(){renderAlloc();renderProjects();if(document.getElementById('view-editor').classList.contains('active'))renderEditor();}
 
 // Arranque: local primero (rápido), luego intenta el data.json compartido.
