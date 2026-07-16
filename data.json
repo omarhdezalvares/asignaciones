@@ -127,6 +127,11 @@
       "id": "cmro422jt611",
       "name": "FINANCIERO GENERICO",
       "area": "fin"
+    },
+    {
+      "id": "cmro51t1g580",
+      "name": "SCM CONSULTOR",
+      "area": "scm"
     }
   ],
   "projects": [
@@ -1455,36 +1460,6 @@
       "projectId": "pmrnuhtpa619",
       "month": "2026-11",
       "pct": 25
-    },
-    {
-      "consultantId": "cmrnuhtp9771",
-      "projectId": "pmrnuhtpa816",
-      "month": "2026-08",
-      "pct": 0
-    },
-    {
-      "consultantId": "cmrnuhtp9771",
-      "projectId": "pmrnuhtpa816",
-      "month": "2026-10",
-      "pct": 100
-    },
-    {
-      "consultantId": "cmrnuhtp9771",
-      "projectId": "pmrnuhtpa816",
-      "month": "2026-11",
-      "pct": 100
-    },
-    {
-      "consultantId": "cmrnuhtp9771",
-      "projectId": "pmrnuhtpa816",
-      "month": "2026-12",
-      "pct": 100
-    },
-    {
-      "consultantId": "cmrnuhtp9771",
-      "projectId": "pmrnuhtpa816",
-      "month": "2027-01",
-      "pct": 100
     }
   ]
 }
