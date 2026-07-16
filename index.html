@@ -465,13 +465,23 @@ function renderProjects(){
     kpi('Personas asignadas',new Set(state.assignments.map(function(a){return a.consultantId;})).size,'con al menos un proyecto','k-blue');
   var grid=document.getElementById('projGrid'); grid.innerHTML='';
   state.projects.filter(function(p){return projFilter==='todos'||p.status===projFilter;}).forEach(function(p){
-    var byC={}; state.assignments.filter(function(a){return a.projectId===p.id;}).forEach(function(a){byC[a.consultantId]=(byC[a.consultantId]||0)+(+a.pct||0);});
-    var people=Object.keys(byC).map(function(cid){return {c:consOf(cid),avg:Math.round(byC[cid]/6)};}).filter(function(x){return x.c;}).sort(function(a,b){return b.avg-a.avg;});
+    var agg={}; state.assignments.filter(function(a){return a.projectId===p.id && (+a.pct)>0;}).forEach(function(a){
+      var g=agg[a.consultantId]||(agg[a.consultantId]={sum:0,min:Infinity,max:-Infinity});
+      var pm=a.month.split('-'),idx=(+pm[0])*12+(+pm[1]-1);
+      g.sum+=(+a.pct||0); if(idx<g.min)g.min=idx; if(idx>g.max)g.max=idx;
+    });
+    var people=Object.keys(agg).map(function(cid){var g=agg[cid];var span=(g.max-g.min+1)||1;return {c:consOf(cid),avg:Math.round(g.sum/span)};}).filter(function(x){return x.c;}).sort(function(a,b){return b.avg-a.avg;});
     var fteAvg=(people.reduce(function(s,x){return s+x.avg;},0)/100).toFixed(1);
+    var pidx=state.assignments.filter(function(a){return a.projectId===p.id&&(+a.pct)>0;}).map(function(a){var q=a.month.split('-');return (+q[0])*12+(+q[1]-1);});
+    var sp=state.config.startMonth.split('-'),nowIdx=(+sp[0])*12+(+sp[1]-1);
+    var endIdx=pidx.length?Math.max.apply(null,pidx):null;
+    var rem=endIdx==null?null:Math.max(0,endIdx-nowIdx+1);
+    var remColor=rem==null?'var(--navy)':(rem<=0?'#a5342a':(rem<=1?'#b06a1a':'var(--navy)'));
+    var endLbl=endIdx==null?'':monthLabel(Math.floor(endIdx/12)+'-'+String(endIdx%12+1).padStart(2,'0'));
     var rows=people.map(function(x){return '<div class="prow"><span>'+x.c.name+'</span><span>'+x.avg+'%</span></div>';}).join('')||'<div class="prow" style="color:var(--muted)"><span>Sin asignaciones aún</span><span></span></div>';
     var el=document.createElement('div'); el.className='pcard'; el.style.borderTopColor=p.color;
     el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:start"><div><h3>'+p.name+'</h3><div class="client">'+(p.client||'—')+'</div></div><span class="badge '+p.status+'">'+p.status+'</span></div>'+
-      '<div class="pmeta"><div><b>'+people.length+'</b>consultores</div><div><b>'+fteAvg+'</b>FTE prom.</div></div>'+rows;
+      '<div class="pmeta"><div><b>'+people.length+'</b>consultores</div><div><b>'+fteAvg+'</b>FTE prom.</div><div title="'+(endLbl?'Termina '+endLbl:'')+'"><b style="color:'+remColor+'">'+(rem==null?'—':rem)+'</b>meses restantes</div></div>'+rows;
     grid.appendChild(el);
   });
 }
