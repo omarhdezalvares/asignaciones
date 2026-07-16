@@ -1082,38 +1082,38 @@
     {
       "consultantId": "cmrnuhtp910",
       "projectId": "pmrnuhtpa659",
-      "month": "2026-08",
-      "pct": 15
-    },
-    {
-      "consultantId": "cmrnuhtp910",
-      "projectId": "pmrnuhtpa659",
       "month": "2026-09",
-      "pct": 15
+      "pct": 25
     },
     {
       "consultantId": "cmrnuhtp910",
       "projectId": "pmrnuhtpa659",
       "month": "2026-10",
-      "pct": 15
+      "pct": 25
     },
     {
       "consultantId": "cmrnuhtp910",
       "projectId": "pmrnuhtpa659",
       "month": "2026-11",
-      "pct": 15
+      "pct": 25
     },
     {
       "consultantId": "cmrnuhtp910",
       "projectId": "pmrnuhtpa659",
       "month": "2026-12",
-      "pct": 15
+      "pct": 25
     },
     {
       "consultantId": "cmrnuhtp910",
       "projectId": "pmrnuhtpa659",
       "month": "2027-01",
-      "pct": 15
+      "pct": 25
+    },
+    {
+      "consultantId": "cmrnuhtp910",
+      "projectId": "pmrnuhtpa659",
+      "month": "2026-08",
+      "pct": 25
     }
   ]
 }
