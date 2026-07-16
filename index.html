@@ -172,6 +172,10 @@
         <div><h2>Asignación por consultor y mes</h2>
           <div class="sub">Clic en cualquier consultor para ver el detalle de proyectos por mes</div></div>
         <div class="spacer" style="flex:1"></div>
+        <div class="filters" id="consFilters" style="margin-right:12px">
+          <span class="chip active" data-cf="all">Activos + Prospectos</span>
+          <span class="chip" data-cf="activo">Solo activos</span>
+        </div>
         <div class="legend">
           <span><i style="background:#eceff3"></i>Disponible 0%</span>
           <span><i style="background:#fde3c4"></i>1–69%</span>
@@ -366,6 +370,9 @@ function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); sched
 function saveLocalOnly(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 function loadLocal(){ try{var s=localStorage.getItem(STORAGE_KEY);if(s)return JSON.parse(s);}catch(e){} return seed(); }
 function totalFor(cId,month){return state.assignments.filter(function(a){return a.consultantId===cId&&a.month===month;}).reduce(function(s,a){return s+(+a.pct||0);},0);}
+var consFilter='all';
+function projPasses(pid){if(consFilter==='all')return true;var p=projOf(pid);return !!(p&&p.status===consFilter);}
+function totalForF(cId,month){return state.assignments.filter(function(a){return a.consultantId===cId&&a.month===month&&projPasses(a.projectId);}).reduce(function(s,a){return s+(+a.pct||0);},0);}
 
 /* ============================ GITHUB SYNC ============================ */
 function b64enc(str){ return btoa(unescape(encodeURIComponent(str))); }
@@ -426,8 +433,8 @@ function renderAlloc(){
   document.getElementById('periodLabel').textContent=monthLabel(months[0])+' — '+monthLabel(months[5]);
   var totalC=state.consultants.length, util=[], bench=0;
   state.consultants.forEach(function(c){
-    util.push(months.reduce(function(s,m){return s+totalFor(c.id,m);},0)/6);
-    if(months.some(function(m){return totalFor(c.id,m)===0;})) bench++;
+    util.push(months.reduce(function(s,m){return s+totalForF(c.id,m);},0)/6);
+    if(months.some(function(m){return totalForF(c.id,m)===0;})) bench++;
   });
   var avgUtil=Math.round(util.reduce(function(s,v){return s+v;},0)/(totalC||1));
   var act=state.projects.filter(function(p){return p.status==='activo';}).length;
@@ -441,14 +448,14 @@ function renderAlloc(){
   var body='<tbody>';
   AREAS.forEach(function(a){
     var list=state.consultants.filter(function(c){return c.area===a.id;});
-    var gUtil=list.length?Math.round(list.reduce(function(s,c){return s+months.reduce(function(ss,m){return ss+totalFor(c.id,m);},0)/6;},0)/list.length):0;
+    var gUtil=list.length?Math.round(list.reduce(function(s,c){return s+months.reduce(function(ss,m){return ss+totalForF(c.id,m);},0)/6;},0)/list.length):0;
     body+='<tr class="area-row"><td colspan="7"><span class="abadge" style="background:'+a.color+'"></span>'+a.name+' · '+list.length+(list.length?' · Utilización prom. '+gUtil+'%':'')+'</td></tr>';
     if(!list.length){ body+='<tr><td class="name-col" style="color:var(--muted);font-weight:400">Sin consultores en esta área</td>'+months.map(function(){return '<td class="cell" style="background:#fafbfc;color:#cbd5e1">—</td>';}).join('')+'</tr>'; return; }
     list.forEach(function(c){
       body+='<tr class="crow" data-c="'+c.id+'"><td class="name-col">'+c.name+'<small>'+a.name+'<span class="chev">▸ ver proyectos</span></small></td>';
       months.forEach(function(m){
-        var tot=totalFor(c.id,m),col=cellColor(tot);
-        var n=state.assignments.filter(function(x){return x.consultantId===c.id&&x.month===m&&x.pct>0;}).length;
+        var tot=totalForF(c.id,m),col=cellColor(tot);
+        var n=state.assignments.filter(function(x){return x.consultantId===c.id&&x.month===m&&x.pct>0&&projPasses(x.projectId);}).length;
         body+='<td class="cell" style="background:'+col.bg+';color:'+col.fg+'">'+tot+'%<span class="mini">'+(tot<=0?'disp.':n+' proy.')+'</span></td>';
       });
       body+='</tr>';
@@ -519,6 +526,7 @@ function renderProjects(){
   });
 }
 Array.prototype.forEach.call(document.querySelectorAll('#projFilters .chip'),function(ch){ch.addEventListener('click',function(){document.querySelectorAll('#projFilters .chip').forEach(function(x){x.classList.remove('active');});ch.classList.add('active');projFilter=ch.getAttribute('data-f');renderProjects();});});
+Array.prototype.forEach.call(document.querySelectorAll('#consFilters .chip'),function(ch){ch.addEventListener('click',function(){document.querySelectorAll('#consFilters .chip').forEach(function(x){x.classList.remove('active');});ch.classList.add('active');consFilter=ch.getAttribute('data-cf');renderAlloc();});});
 
 /* ---- Editor de asignaciones por proyecto (desde Portafolio) ---- */
 var pmPid=null;
