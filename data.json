@@ -19,11 +19,6 @@
       "area": "fin"
     },
     {
-      "id": "cmrnuhtp9909",
-      "name": "Mariana Contreras Jaramillo",
-      "area": "fin"
-    },
-    {
       "id": "cmrnuhtp9993",
       "name": "Mauricio Alan Pérez Dávila",
       "area": "fin"
@@ -91,11 +86,6 @@
     {
       "id": "cmrnuhtp910",
       "name": "Gabriel Ernesto Ríos Sánchez",
-      "area": "dev"
-    },
-    {
-      "id": "cmrnuhtp9909",
-      "name": "Jorge García",
       "area": "dev"
     },
     {
@@ -751,12 +741,6 @@
       "projectId": "pmrnuhtpa649",
       "month": "2026-09",
       "pct": 10
-    },
-    {
-      "consultantId": "cmrnuhtp9909",
-      "projectId": "pmrnuhtpa927",
-      "month": "2026-08",
-      "pct": 100
     },
     {
       "consultantId": "cmrnuhtp9535",
