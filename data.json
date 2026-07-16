@@ -1264,6 +1264,18 @@
       "projectId": "pmrnuhtpa550",
       "month": "2026-11",
       "pct": 100
+    },
+    {
+      "consultantId": "cmrnuhtp9771",
+      "projectId": "pmrnuhtpa550",
+      "month": "2026-12",
+      "pct": 100
+    },
+    {
+      "consultantId": "cmrnuhtp9771",
+      "projectId": "pmrnuhtpa550",
+      "month": "2027-01",
+      "pct": 100
     }
   ]
 }
