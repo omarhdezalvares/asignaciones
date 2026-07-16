@@ -132,6 +132,11 @@
       "id": "cmro51t1g580",
       "name": "SCM CONSULTOR",
       "area": "scm"
+    },
+    {
+      "id": "cmro5cmuy577",
+      "name": "FINANCIERO GENERICO 2",
+      "area": "fin"
     }
   ],
   "projects": [
@@ -1446,12 +1451,6 @@
     {
       "consultantId": "cmro0y8bg856",
       "projectId": "pmrnuhtpa619",
-      "month": "2026-08",
-      "pct": 0
-    },
-    {
-      "consultantId": "cmro0y8bg856",
-      "projectId": "pmrnuhtpa619",
       "month": "2026-10",
       "pct": 25
     },
@@ -1498,34 +1497,28 @@
       "pct": 100
     },
     {
-      "consultantId": "cmrnuhtp9771",
-      "projectId": "pmrnuhtpa816",
+      "consultantId": "cmro5cmuy577",
+      "projectId": "pmrnuhtpa619",
       "month": "2026-08",
       "pct": 0
     },
     {
-      "consultantId": "cmrnuhtp9771",
-      "projectId": "pmrnuhtpa816",
+      "consultantId": "cmro5cmuy577",
+      "projectId": "pmrnuhtpa619",
       "month": "2026-10",
       "pct": 100
     },
     {
-      "consultantId": "cmrnuhtp9771",
-      "projectId": "pmrnuhtpa816",
+      "consultantId": "cmro5cmuy577",
+      "projectId": "pmrnuhtpa619",
       "month": "2026-11",
       "pct": 100
     },
     {
       "consultantId": "cmrnuhtp9771",
       "projectId": "pmrnuhtpa816",
-      "month": "2026-12",
-      "pct": 100
-    },
-    {
-      "consultantId": "cmrnuhtp9771",
-      "projectId": "pmrnuhtpa816",
-      "month": "2027-01",
-      "pct": 100
+      "month": "2026-08",
+      "pct": 0
     }
   ]
 }
