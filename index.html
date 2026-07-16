@@ -492,11 +492,11 @@ function renderProjects(){
   var grid=document.getElementById('projGrid'); grid.innerHTML='';
   state.projects.filter(function(p){return projFilter==='todos'||p.status===projFilter;}).forEach(function(p){
     var agg={}; state.assignments.filter(function(a){return a.projectId===p.id && (+a.pct)>0;}).forEach(function(a){
-      var g=agg[a.consultantId]||(agg[a.consultantId]={sum:0,min:Infinity,max:-Infinity});
-      var pm=a.month.split('-'),idx=(+pm[0])*12+(+pm[1]-1);
-      g.sum+=(+a.pct||0); if(idx<g.min)g.min=idx; if(idx>g.max)g.max=idx;
+      var g=agg[a.consultantId]||(agg[a.consultantId]={sum:0,mset:{}});
+      g.sum+=(+a.pct||0); g.mset[a.month]=1;
     });
-    var people=Object.keys(agg).map(function(cid){var g=agg[cid];var span=(g.max-g.min+1)||1;return {c:consOf(cid),avg:Math.round(g.sum/span)};}).filter(function(x){return x.c;}).sort(function(a,b){return b.avg-a.avg;});
+    var projRef=0; Object.keys(agg).forEach(function(cid){var n=Object.keys(agg[cid].mset).length; if(n>projRef)projRef=n;}); projRef=projRef||1;
+    var people=Object.keys(agg).map(function(cid){return {c:consOf(cid),avg:Math.round(agg[cid].sum/projRef)};}).filter(function(x){return x.c;}).sort(function(a,b){return b.avg-a.avg;});
     var fteAvg=(people.reduce(function(s,x){return s+x.avg;},0)/100).toFixed(1);
     var pidx=state.assignments.filter(function(a){return a.projectId===p.id&&(+a.pct)>0;}).map(function(a){var q=a.month.split('-');return (+q[0])*12+(+q[1]-1);});
     var sp=state.config.startMonth.split('-'),nowIdx=(+sp[0])*12+(+sp[1]-1);
