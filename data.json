@@ -496,7 +496,13 @@
       "consultantId": "cmrnuhtp9771",
       "projectId": "pmrnuhtpa178",
       "month": "2026-08",
-      "pct": 0
+      "pct": 25
+    },
+    {
+      "consultantId": "cmrnuhtp9771",
+      "projectId": "pmrnuhtpa178",
+      "month": "2026-09",
+      "pct": 25
     }
   ]
 }
