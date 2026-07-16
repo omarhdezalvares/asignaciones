@@ -280,6 +280,11 @@
   <div class="modal-body"><table class="mtable" id="mTable"></table></div>
 </div></div>
 
+<div class="overlay" id="poverlay"><div class="modal" style="max-width:920px">
+  <div class="modal-head"><div><h3 id="pmTitle"></h3><div class="msub" id="pmSub"></div></div><div class="x" id="pmClose">&times;</div></div>
+  <div class="modal-body" id="pmBody"></div>
+</div></div>
+
 <script>
 /* ============================ CONFIG ============================ */
 var AREAS = [
@@ -498,11 +503,38 @@ function renderProjects(){
     var rows=people.map(function(x){return '<div class="prow"><span>'+x.c.name+'</span><span>'+x.avg+'%</span></div>';}).join('')||'<div class="prow" style="color:var(--muted)"><span>Sin asignaciones aún</span><span></span></div>';
     var el=document.createElement('div'); el.className='pcard'; el.style.borderTopColor=p.color;
     el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:start"><div><h3>'+p.name+'</h3><div class="client">'+(p.client||'—')+'</div></div><span class="badge '+p.status+'">'+p.status+'</span></div>'+
-      '<div class="pmeta"><div><b>'+people.length+'</b>consultores</div><div><b>'+fteAvg+'</b>FTE prom.</div><div title="'+(endLbl?'Termina '+endLbl:'')+'"><b style="color:'+remColor+'">'+(rem==null?'—':rem)+'</b>meses restantes</div></div>'+rows;
+      '<div class="pmeta"><div><b>'+people.length+'</b>consultores</div><div><b>'+fteAvg+'</b>FTE prom.</div><div title="'+(endLbl?'Termina '+endLbl:'')+'"><b style="color:'+remColor+'">'+(rem==null?'—':rem)+'</b>meses restantes</div></div>'+rows+
+      '<div style="margin-top:12px;text-align:right"><button class="btn primary sm" data-openproj="'+p.id+'">✎ Asignar consultores</button></div>';
     grid.appendChild(el);
   });
 }
 Array.prototype.forEach.call(document.querySelectorAll('#projFilters .chip'),function(ch){ch.addEventListener('click',function(){document.querySelectorAll('#projFilters .chip').forEach(function(x){x.classList.remove('active');});ch.classList.add('active');projFilter=ch.getAttribute('data-f');renderProjects();});});
+
+/* ---- Editor de asignaciones por proyecto (desde Portafolio) ---- */
+var pmPid=null;
+function openProject(pid){var p=projOf(pid);if(!p)return;pmPid=pid;document.getElementById('pmTitle').textContent=p.name;document.getElementById('pmSub').textContent=(p.client||'—')+' · '+p.status;renderProjEditor(pid);document.getElementById('poverlay').classList.add('open');}
+function projTotals(pid,months){return months.map(function(m){return state.assignments.filter(function(x){return x.projectId===pid&&x.month===m;}).reduce(function(s,x){return s+(+x.pct||0);},0);});}
+function renderProjEditor(pid){
+  var months=monthList(state.config.startMonth);
+  var cids=[]; state.assignments.forEach(function(a){if(a.projectId===pid&&cids.indexOf(a.consultantId)<0)cids.push(a.consultantId);});
+  var head='<thead><tr><th style="text-align:left">Consultor</th>'+months.map(function(m){return '<th>'+monthLabel(m)+'</th>';}).join('')+'<th></th></tr></thead>';
+  var body='<tbody>';
+  if(!cids.length) body+='<tr><td colspan="8" style="color:var(--muted);padding:14px">Aún no hay consultores en este proyecto. Agrégalos abajo ▼</td></tr>';
+  cids.forEach(function(cid){var c=consOf(cid);if(!c)return;var ar=areaOf(c.area);
+    body+='<tr><td style="text-align:left"><span class="pill" style="background:'+ar.color+'"></span>'+c.name+' <small style="color:var(--muted)">'+ar.name+'</small></td>';
+    months.forEach(function(m){var a=state.assignments.filter(function(x){return x.consultantId===cid&&x.projectId===pid&&x.month===m;})[0];body+='<td><input type="number" min="0" max="200" step="5" value="'+(a?a.pct:'')+'" style="width:54px;text-align:center" data-pa="1" data-c="'+cid+'" data-m="'+m+'"></td>';});
+    body+='<td><button class="btn danger sm" data-pdel="1" data-c="'+cid+'">Quitar</button></td></tr>';
+  });
+  body+='<tr class="totrow"><td style="text-align:left">Total del proyecto (FTE)</td>'+projTotals(pid,months).map(function(tt){return '<td>'+(tt/100).toFixed(1)+'</td>';}).join('')+'<td></td></tr></tbody>';
+  var opts=state.consultants.filter(function(c){return cids.indexOf(c.id)<0;}).map(function(c){return '<option value="'+c.id+'">'+c.name+' ('+areaOf(c.area).name+')</option>';}).join('');
+  var adder='<div class="form-row" style="margin:14px 0 0"><div class="fld" style="min-width:240px"><label>Agregar consultor</label><select id="pmAddSel">'+(opts||'<option value="">— todos ya asignados —</option>')+'</select></div><div class="fld"><label>% en todos los meses</label><input type="number" id="pmAddPct" min="0" max="200" step="5" value="100" style="width:110px"></div><button class="btn primary" id="pmAddBtn">+ Agregar al proyecto</button></div>';
+  document.getElementById('pmBody').innerHTML='<div class="hint">Captura el % de cada consultor por mes. Se guarda automáticamente'+(ghToken()?' y se publica en GitHub.':' en este navegador.')+'</div><div class="grid-wrap"><table class="list-table">'+head+body+'</table></div>'+adder;
+}
+document.getElementById('pmClose').addEventListener('click',function(){document.getElementById('poverlay').classList.remove('open');});
+document.getElementById('poverlay').addEventListener('click',function(e){if(e.target.id==='poverlay')e.currentTarget.classList.remove('open');});
+document.getElementById('pmBody').addEventListener('input',function(e){var el=e.target;if(!el.getAttribute('data-pa'))return;var c=el.getAttribute('data-c'),m=el.getAttribute('data-m');var val=parseInt(el.value,10);if(isNaN(val))val=0;var a=state.assignments.filter(function(x){return x.consultantId===c&&x.projectId===pmPid&&x.month===m;})[0];if(a){if(val>0)a.pct=val;else state.assignments=state.assignments.filter(function(x){return x!==a;});}else if(val>0){state.assignments.push({consultantId:c,projectId:pmPid,month:m,pct:val});}save();var tr=document.querySelector('#pmBody .totrow');if(tr){tr.innerHTML='<td style="text-align:left">Total del proyecto (FTE)</td>'+projTotals(pmPid,monthList(state.config.startMonth)).map(function(tt){return '<td>'+(tt/100).toFixed(1)+'</td>';}).join('')+'<td></td>';}renderProjects();});
+document.getElementById('pmBody').addEventListener('click',function(e){var el=e.target;if(el.getAttribute('data-pdel')){var c=el.getAttribute('data-c');if(confirm('¿Quitar a este consultor del proyecto?')){state.assignments=state.assignments.filter(function(x){return !(x.consultantId===c&&x.projectId===pmPid);});save();renderProjEditor(pmPid);renderProjects();}}if(el.id==='pmAddBtn'){var cid=document.getElementById('pmAddSel').value;if(!cid)return;var pct=parseInt(document.getElementById('pmAddPct').value,10);if(isNaN(pct))pct=0;var months=monthList(state.config.startMonth);if(pct>0){months.forEach(function(m){state.assignments.push({consultantId:cid,projectId:pmPid,month:m,pct:pct});});}else{state.assignments.push({consultantId:cid,projectId:pmPid,month:months[0],pct:0});}save();renderProjEditor(pmPid);renderProjects();}});
+document.getElementById('projGrid').addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-openproj]'):null;if(b)openProject(b.getAttribute('data-openproj'));});
 
 /* ============================ EDITOR ============================ */
 function fillAreaSelect(sel){sel.innerHTML=AREAS.map(function(a){return '<option value="'+a.id+'">'+a.name+'</option>';}).join('');}
