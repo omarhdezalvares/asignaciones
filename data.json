@@ -254,6 +254,13 @@
       "client": "GST",
       "status": "prospecto",
       "color": "#5a7fd0"
+    },
+    {
+      "id": "pmrnuzraz16",
+      "name": "Nuevos requerimientos || Chilchota",
+      "client": "Chilchota",
+      "status": "activo",
+      "color": "#2b8fd0"
     }
   ],
   "assignments": [
