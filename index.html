@@ -68,7 +68,8 @@
   .chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 14px;font-size:12.5px;cursor:pointer;color:var(--muted);font-weight:600}
   .chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
   .proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
-  .pcard{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;border-top:4px solid var(--blue)}
+  .pcard{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;border-top:4px solid var(--blue);display:flex;flex-direction:column}
+  .icon-btn{width:36px;height:34px;padding:0;font-size:15px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
   .pcard h3{margin:0 0 3px;font-size:15px;color:var(--navy)}
   .pcard .client{font-size:12.5px;color:var(--muted);margin-bottom:12px}
   .badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
@@ -275,9 +276,9 @@
   <div class="foot">Grupo Staff · Business Process &amp; IT Consulting — Herramienta interna de proyección de capacidad</div>
 </main>
 
-<div class="overlay" id="overlay"><div class="modal">
+<div class="overlay" id="overlay"><div class="modal" style="max-width:920px">
   <div class="modal-head"><div><h3 id="mTitle"></h3><div class="msub" id="mSub"></div></div><div class="x" id="mClose">&times;</div></div>
-  <div class="modal-body"><table class="mtable" id="mTable"></table></div>
+  <div class="modal-body" id="mBody"></div>
 </div></div>
 
 <div class="overlay" id="poverlay"><div class="modal" style="max-width:920px">
@@ -455,26 +456,29 @@ function renderAlloc(){
 function kpi(label,val,sub,cls){return '<div class="kpi '+cls+'"><div class="k-label">'+label+'</div><div class="k-val">'+val+'</div><div class="k-sub">'+sub+'</div></div>';}
 
 /* ============================ MODAL ============================ */
-function openConsultant(cId){
-  var c=consOf(cId),a=areaOf(c.area),months=monthList(state.config.startMonth);
-  document.getElementById('mTitle').textContent=c.name;
-  document.getElementById('mSub').textContent=a.name;
-  var pIds=[]; state.assignments.forEach(function(x){if(x.consultantId===cId&&pIds.indexOf(x.projectId)<0)pIds.push(x.projectId);});
-  var head='<thead><tr><th class="pj" style="text-align:left">Proyecto</th>'+months.map(function(m){return '<th>'+monthLabel(m)+'</th>';}).join('')+'</tr></thead>';
+var mCid=null;
+function openConsultant(cId){var c=consOf(cId);if(!c)return;mCid=cId;document.getElementById('mTitle').textContent=c.name;document.getElementById('mSub').textContent=areaOf(c.area).name;renderConsEditor(cId);document.getElementById('overlay').classList.add('open');}
+function consTotals(cId,months){return months.map(function(m){return totalFor(cId,m);});}
+function renderConsEditor(cId){
+  var months=monthList(state.config.startMonth);
+  var pIds=[]; state.assignments.forEach(function(a){if(a.consultantId===cId&&pIds.indexOf(a.projectId)<0)pIds.push(a.projectId);});
+  var head='<thead><tr><th style="text-align:left">Proyecto</th>'+months.map(function(m){return '<th>'+monthLabel(m)+'</th>';}).join('')+'<th></th></tr></thead>';
   var body='<tbody>';
-  if(!pIds.length) body+='<tr><td colspan="7" style="padding:20px;color:var(--muted)">Sin proyectos asignados en el periodo.</td></tr>';
-  pIds.forEach(function(pid){
-    var p=projOf(pid); if(!p) return;
-    body+='<tr><td class="pj"><span class="pill" style="background:'+p.color+'"></span>'+p.name+' <span class="badge '+p.status+'" style="transform:scale(.82)">'+p.status+'</span></td>';
-    months.forEach(function(m){var a2=state.assignments.filter(function(x){return x.consultantId===cId&&x.projectId===pid&&x.month===m;})[0];body+='<td>'+(a2&&a2.pct?a2.pct+'%':'—')+'</td>';});
-    body+='</tr>';
+  if(!pIds.length) body+='<tr><td colspan="8" style="color:var(--muted);padding:14px">Sin proyectos. Agrégalo abajo ▼</td></tr>';
+  pIds.forEach(function(pid){var p=projOf(pid);if(!p)return;
+    body+='<tr><td style="text-align:left"><span class="pill" style="background:'+p.color+'"></span>'+p.name+' <span class="badge '+p.status+'" style="transform:scale(.82)">'+p.status+'</span></td>';
+    months.forEach(function(m){var a=state.assignments.filter(function(x){return x.consultantId===cId&&x.projectId===pid&&x.month===m;})[0];body+='<td><input type="number" min="0" max="200" step="5" value="'+(a?a.pct:'')+'" style="width:54px;text-align:center" data-ca="1" data-p="'+pid+'" data-m="'+m+'"></td>';});
+    body+='<td><button class="btn danger sm" data-cdel="1" data-p="'+pid+'">Quitar</button></td></tr>';
   });
-  var foot='<tfoot><tr><td class="pj">Total mensual</td>'+months.map(function(m){var tot=totalFor(cId,m),col=cellColor(tot);return '<td style="color:'+col.fg+'">'+tot+'%</td>';}).join('')+'</tr></tfoot>';
-  document.getElementById('mTable').innerHTML=head+body+'</tbody>'+foot;
-  document.getElementById('overlay').classList.add('open');
+  body+='<tr class="totrow"><td style="text-align:left">Total mensual</td>'+consTotals(cId,months).map(function(tt){var col=cellColor(tt);return '<td style="color:'+col.fg+'">'+tt+'%</td>';}).join('')+'<td></td></tr></tbody>';
+  var opts=state.projects.filter(function(p){return pIds.indexOf(p.id)<0;}).map(function(p){return '<option value="'+p.id+'">'+p.name+'</option>';}).join('');
+  var adder='<div class="form-row" style="margin:14px 0 0"><div class="fld" style="min-width:240px"><label>Agregar a proyecto</label><select id="mAddSel">'+(opts||'<option value="">— ya está en todos —</option>')+'</select></div><div class="fld"><label>% en todos los meses</label><input type="number" id="mAddPct" min="0" max="200" step="5" value="" placeholder="opcional" style="width:120px"></div><button class="btn primary" id="mAddBtn">+ Agregar</button></div>';
+  document.getElementById('mBody').innerHTML='<div class="hint">Captura el % del consultor en cada proyecto por mes. Se guarda automáticamente'+(ghToken()?' y se publica en GitHub.':' en este navegador.')+'</div><div class="grid-wrap"><table class="list-table">'+head+body+'</table></div>'+adder;
 }
 document.getElementById('mClose').addEventListener('click',function(){document.getElementById('overlay').classList.remove('open');});
 document.getElementById('overlay').addEventListener('click',function(e){if(e.target.id==='overlay')e.currentTarget.classList.remove('open');});
+document.getElementById('mBody').addEventListener('input',function(e){var el=e.target;if(!el.getAttribute('data-ca'))return;var p=el.getAttribute('data-p'),m=el.getAttribute('data-m');var val=parseInt(el.value,10);if(isNaN(val))val=0;var a=state.assignments.filter(function(x){return x.consultantId===mCid&&x.projectId===p&&x.month===m;})[0];if(a){if(val>0)a.pct=val;else state.assignments=state.assignments.filter(function(x){return x!==a;});}else if(val>0){state.assignments.push({consultantId:mCid,projectId:p,month:m,pct:val});}save();var tr=document.querySelector('#mBody .totrow');if(tr){var months=monthList(state.config.startMonth);tr.innerHTML='<td style="text-align:left">Total mensual</td>'+consTotals(mCid,months).map(function(tt){var col=cellColor(tt);return '<td style="color:'+col.fg+'">'+tt+'%</td>';}).join('')+'<td></td>';}renderAlloc();});
+document.getElementById('mBody').addEventListener('click',function(e){var el=e.target;if(el.getAttribute('data-cdel')){var p=el.getAttribute('data-p');if(confirm('¿Quitar este proyecto del consultor?')){state.assignments=state.assignments.filter(function(x){return !(x.consultantId===mCid&&x.projectId===p);});save();renderConsEditor(mCid);renderAlloc();}}if(el.id==='mAddBtn'){var pid=document.getElementById('mAddSel').value;if(!pid)return;var pct=parseInt(document.getElementById('mAddPct').value,10);if(isNaN(pct))pct=0;var months=monthList(state.config.startMonth);if(pct>0){months.forEach(function(m){state.assignments.push({consultantId:mCid,projectId:pid,month:m,pct:pct});});}else{state.assignments.push({consultantId:mCid,projectId:pid,month:months[0],pct:0});}save();renderConsEditor(mCid);renderAlloc();}});
 
 /* ============================ RENDER: PROYECTOS ============================ */
 var projFilter='todos';
@@ -504,7 +508,7 @@ function renderProjects(){
     var el=document.createElement('div'); el.className='pcard'; el.style.borderTopColor=p.color;
     el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:start"><div><h3>'+p.name+'</h3><div class="client">'+(p.client||'—')+'</div></div><span class="badge '+p.status+'">'+p.status+'</span></div>'+
       '<div class="pmeta"><div><b>'+people.length+'</b>consultores</div><div><b>'+fteAvg+'</b>FTE prom.</div><div title="'+(endLbl?'Termina '+endLbl:'')+'"><b style="color:'+remColor+'">'+(rem==null?'—':rem)+'</b>meses restantes</div></div>'+rows+
-      '<div style="margin-top:12px;text-align:right"><button class="btn primary sm" data-openproj="'+p.id+'">✎ Asignar consultores</button></div>';
+      '<div style="margin-top:auto;padding-top:12px;text-align:right"><button class="btn primary sm icon-btn" title="Asignar consultores" data-openproj="'+p.id+'">✎</button></div>';
     grid.appendChild(el);
   });
 }
@@ -527,7 +531,7 @@ function renderProjEditor(pid){
   });
   body+='<tr class="totrow"><td style="text-align:left">Total del proyecto (FTE)</td>'+projTotals(pid,months).map(function(tt){return '<td>'+(tt/100).toFixed(1)+'</td>';}).join('')+'<td></td></tr></tbody>';
   var opts=state.consultants.filter(function(c){return cids.indexOf(c.id)<0;}).map(function(c){return '<option value="'+c.id+'">'+c.name+' ('+areaOf(c.area).name+')</option>';}).join('');
-  var adder='<div class="form-row" style="margin:14px 0 0"><div class="fld" style="min-width:240px"><label>Agregar consultor</label><select id="pmAddSel">'+(opts||'<option value="">— todos ya asignados —</option>')+'</select></div><div class="fld"><label>% en todos los meses</label><input type="number" id="pmAddPct" min="0" max="200" step="5" value="100" style="width:110px"></div><button class="btn primary" id="pmAddBtn">+ Agregar al proyecto</button></div>';
+  var adder='<div class="form-row" style="margin:14px 0 0"><div class="fld" style="min-width:240px"><label>Agregar consultor</label><select id="pmAddSel">'+(opts||'<option value="">— todos ya asignados —</option>')+'</select></div><div class="fld"><label>% en todos los meses</label><input type="number" id="pmAddPct" min="0" max="200" step="5" value="" placeholder="opcional" style="width:120px"></div><button class="btn primary" id="pmAddBtn">+ Agregar al proyecto</button></div>';
   document.getElementById('pmBody').innerHTML='<div class="hint">Captura el % de cada consultor por mes. Se guarda automáticamente'+(ghToken()?' y se publica en GitHub.':' en este navegador.')+'</div><div class="grid-wrap"><table class="list-table">'+head+body+'</table></div>'+adder;
 }
 document.getElementById('pmClose').addEventListener('click',function(){document.getElementById('poverlay').classList.remove('open');});
