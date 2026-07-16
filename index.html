@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proyección de Asignación de Consultores · Grupo Staff</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --navy:#1a3f6f; --navy-deep:#12345e; --blue:#2b8fd0; --teal:#39bec9;
+    --yellow:#f4c430; --green:#5cb85c; --orange:#e8722a; --ink:#1f2a37;
+    --muted:#64748b; --line:#e4e9f0; --bg:#f4f7fb; --card:#ffffff;
+    --shadow:0 1px 3px rgba(16,42,74,.08),0 8px 24px rgba(16,42,74,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased}
+  a{color:var(--blue)}
+  header{background:linear-gradient(120deg,#12345e,#1a3f6f 55%,#215a92);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:20px;box-shadow:0 2px 12px rgba(16,42,74,.18);position:sticky;top:0;z-index:40}
+  .brand{display:flex;align-items:center;gap:14px;flex-shrink:0}
+  .brand svg{display:block}
+  .brand .txt{line-height:1}
+  .brand .txt b{font-size:20px;letter-spacing:.5px;font-weight:800}
+  .brand .txt span{display:block;font-size:8.5px;letter-spacing:2.5px;color:#a9c6e6;margin-top:3px;text-transform:uppercase}
+  .htitle{border-left:1px solid rgba(255,255,255,.2);padding-left:20px}
+  .htitle h1{margin:0;font-size:16px;font-weight:600}
+  .htitle p{margin:2px 0 0;font-size:12px;color:#bcd4ee}
+  .spacer{flex:1}
+  .period-pick{display:flex;align-items:center;gap:8px;font-size:12px;color:#cfe0f2}
+  .period-pick input{border:none;border-radius:7px;padding:6px 8px;font-size:12px;color:var(--navy);font-weight:600}
+  .gh-wrap{display:flex;align-items:center;gap:7px;font-size:11.5px;color:#eaf2fb;background:rgba(255,255,255,.12);padding:6px 11px;border-radius:20px;white-space:nowrap}
+  .gh-dot{width:9px;height:9px;border-radius:50%;background:#94a3b8;flex-shrink:0}
+  .tabbar{display:flex;gap:4px;background:#fff;padding:0 22px;border-bottom:1px solid var(--line);position:sticky;top:64px;z-index:30}
+  .tab{padding:13px 18px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;font-size:13.5px;user-select:none}
+  .tab:hover{color:var(--navy)}
+  .tab.active{color:var(--navy);border-bottom-color:var(--teal)}
+  .tab .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:middle}
+  main{padding:22px;max-width:1500px;margin:0 auto}
+  .view{display:none}.view.active{display:block}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+  .kpi{background:var(--card);border-radius:12px;padding:15px 17px;box-shadow:var(--shadow);border-left:4px solid var(--teal)}
+  .kpi .k-label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
+  .kpi .k-val{font-size:26px;font-weight:800;margin-top:5px;color:var(--navy)}
+  .kpi .k-sub{font-size:11px;color:var(--muted);margin-top:2px}
+  .kpi.k-blue{border-left-color:var(--blue)}.kpi.k-green{border-left-color:var(--green)}
+  .kpi.k-orange{border-left-color:var(--orange)}.kpi.k-yellow{border-left-color:var(--yellow)}
+  .card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
+  .card-head{display:flex;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid var(--line)}
+  .card-head h2{margin:0;font-size:15px;color:var(--navy)}
+  .card-head .sub{font-size:12px;color:var(--muted)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);align-items:center}
+  .legend i{display:inline-block;width:13px;height:13px;border-radius:3px;margin-right:5px;vertical-align:-2px}
+  table{border-collapse:collapse;width:100%}
+  .grid-wrap{overflow-x:auto}
+  .grid th,.grid td{padding:0;text-align:center;font-size:13px}
+  .grid thead th{background:#f7fafd;color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;padding:11px 8px;border-bottom:1px solid var(--line);position:sticky;top:0}
+  .grid .name-col{text-align:left;padding:10px 14px;min-width:230px;position:sticky;left:0;background:var(--card);z-index:2}
+  .grid thead .name-col{z-index:5;background:#f7fafd}
+  .area-row td{background:linear-gradient(90deg,#eef4fb,#f7fafd);color:var(--navy);font-weight:700;text-transform:uppercase;letter-spacing:.6px;font-size:11px;padding:8px 14px;text-align:left}
+  .area-row .abadge{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;vertical-align:0}
+  .crow{border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
+  .crow:hover{background:#f2f8ff}
+  .crow .name-col{font-weight:600}
+  .crow .name-col small{display:block;color:var(--muted);font-weight:400;font-size:11px}
+  .cell{height:46px;font-weight:700;color:#12303f;border-left:1px solid #eef2f7;position:relative}
+  .cell .mini{font-size:9px;font-weight:600;opacity:.7;display:block;margin-top:-2px}
+  .chev{color:var(--muted);font-size:11px;margin-left:6px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 14px;font-size:12.5px;cursor:pointer;color:var(--muted);font-weight:600}
+  .chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  .pcard{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;border-top:4px solid var(--blue)}
+  .pcard h3{margin:0 0 3px;font-size:15px;color:var(--navy)}
+  .pcard .client{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+  .badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .badge.activo{background:#e4f6e6;color:#2e7d32}
+  .badge.prospecto{background:#fdeede;color:#c25a12}
+  .pcard .prow{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;border-top:1px dashed var(--line)}
+  .pcard .prow span:last-child{font-weight:700;color:var(--navy)}
+  .pmeta{display:flex;gap:16px;margin:10px 0 6px;font-size:12px;color:var(--muted)}
+  .pmeta b{color:var(--navy);font-size:15px;display:block}
+  .btn{border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:var(--navy);border:1px solid var(--line)}
+  .btn:hover{background:#f2f8ff}
+  .btn.primary{background:var(--teal);color:#fff;border-color:var(--teal)}.btn.primary:hover{background:#2aa9b4}
+  .btn.navy{background:var(--navy);color:#fff;border-color:var(--navy)}.btn.navy:hover{background:var(--navy-deep)}
+  .btn.ghost{background:transparent;color:#cfe0f2;border-color:rgba(255,255,255,.35)}.btn.ghost:hover{background:rgba(255,255,255,.12)}
+  .btn.danger{color:#c0392b;border-color:#f2c9c4}.btn.danger:hover{background:#fdecea}
+  .btn.sm{padding:5px 10px;font-size:12px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .overlay{position:fixed;inset:0;background:rgba(16,42,74,.5);display:none;align-items:flex-start;justify-content:center;z-index:60;padding:40px 16px;overflow:auto}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:14px;width:100%;max-width:760px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
+  .modal-head{padding:18px 22px;background:linear-gradient(120deg,#12345e,#215a92);color:#fff;display:flex;align-items:center;justify-content:space-between}
+  .modal-head h3{margin:0;font-size:17px}
+  .modal-head .msub{font-size:12.5px;color:#bcd4ee;margin-top:2px}
+  .modal-head .x{cursor:pointer;font-size:24px;line-height:1;opacity:.85}.modal-head .x:hover{opacity:1}
+  .modal-body{padding:20px 22px;max-height:70vh;overflow:auto}
+  .mtable{width:100%;border-collapse:collapse;font-size:13px}
+  .mtable th,.mtable td{padding:9px 10px;text-align:center;border-bottom:1px solid var(--line)}
+  .mtable th{background:#f7fafd;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .mtable td.pj{text-align:left;font-weight:600}
+  .mtable tfoot td{font-weight:800;color:var(--navy);border-top:2px solid var(--line)}
+  .pill{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:0}
+  .ed-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+  .ed-tab{padding:8px 14px;border-radius:8px;background:#fff;border:1px solid var(--line);cursor:pointer;font-weight:600;font-size:13px;color:var(--muted)}
+  .ed-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .ed-pane{display:none}.ed-pane.active{display:block}
+  .form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+  .fld{display:flex;flex-direction:column;gap:4px}
+  .fld label{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:600}
+  input,select{font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  input:focus,select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(57,190,201,.15)}
+  .list-table{width:100%;border-collapse:collapse;font-size:13px}
+  .list-table th,.list-table td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line)}
+  .list-table th{background:#f7fafd;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .list-table input,.list-table select{padding:5px 7px;font-size:12.5px}
+  .hint{font-size:12px;color:var(--muted);background:#f7fafd;border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin-bottom:14px}
+  .hint code{background:#e7eef7;padding:1px 5px;border-radius:4px;color:var(--navy)}
+  .totrow td{font-weight:700}
+  .foot{color:var(--muted);font-size:11.5px;text-align:center;padding:18px}
+  .file-hidden{display:none}
+  .sync-card{border-top:4px solid #24292f}
+  .statusline{font-size:12.5px;padding:9px 12px;border-radius:8px;margin-top:8px}
+  .statusline.ok{background:#e4f6e6;color:#256b2a}
+  .statusline.err{background:#fdecea;color:#b3261e}
+  .statusline.info{background:#eaf2fb;color:#215a92}
+  @media(max-width:900px){.htitle{display:none}}
+  @media(max-width:720px){.brand .txt span{display:none}.period-pick span{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg width="52" height="52" viewBox="0 0 100 100" aria-label="Grupo Staff">
+      <g stroke-linecap="round" fill="none" stroke-width="13">
+        <path d="M28 26 L72 74" stroke="#2b8fd0"/>
+        <path d="M72 26 L28 74" stroke="#39bec9"/>
+      </g>
+      <circle cx="24" cy="20" r="7" fill="#f4c430"/>
+      <circle cx="24" cy="80" r="7" fill="#5cb85c"/>
+      <circle cx="78" cy="80" r="7" fill="#e8722a"/>
+      <circle cx="78" cy="20" r="7" fill="#2b8fd0"/>
+    </svg>
+    <div class="txt"><b>GRUPO STAFF</b><span>Business Process &amp; IT Consulting</span></div>
+  </div>
+  <div class="htitle">
+    <h1>Proyección de Asignación de Consultores</h1>
+    <p id="periodLabel">—</p>
+  </div>
+  <div class="spacer"></div>
+  <div class="period-pick"><span>Inicio (6 meses):</span><input type="month" id="startMonth"></div>
+  <div class="gh-wrap" title="Estado de sincronización con GitHub"><span class="gh-dot" id="ghDot"></span><span id="ghText">Local</span></div>
+  <button class="btn ghost" id="resetBtn" title="Restablecer datos de ejemplo">↺ Ejemplo</button>
+</header>
+
+<div class="tabbar">
+  <div class="tab active" data-view="consultores"><span class="dot" style="background:var(--teal)"></span>Consultores</div>
+  <div class="tab" data-view="proyectos"><span class="dot" style="background:var(--blue)"></span>Proyectos</div>
+  <div class="tab" data-view="editor"><span class="dot" style="background:var(--orange)"></span>Editar datos</div>
+</div>
+
+<main>
+  <section class="view active" id="view-consultores">
+    <div class="kpis" id="kpis"></div>
+    <div class="card">
+      <div class="card-head">
+        <div><h2>Asignación por consultor y mes</h2>
+          <div class="sub">Clic en cualquier consultor para ver el detalle de proyectos por mes</div></div>
+        <div class="spacer" style="flex:1"></div>
+        <div class="legend">
+          <span><i style="background:#eceff3"></i>Disponible 0%</span>
+          <span><i style="background:#fde3c4"></i>1–69%</span>
+          <span><i style="background:#c9ebc6"></i>70–100%</span>
+          <span><i style="background:#f6c6bf"></i>&gt;100% Sobreasig.</span>
+        </div>
+      </div>
+      <div class="grid-wrap"><table class="grid" id="allocTable"></table></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-proyectos">
+    <div class="kpis" id="projKpis"></div>
+    <div class="card">
+      <div class="card-head"><h2>Portafolio de proyectos</h2><div class="spacer" style="flex:1"></div>
+        <div class="filters" id="projFilters">
+          <span class="chip active" data-f="todos">Todos</span>
+          <span class="chip" data-f="activo">Activos</span>
+          <span class="chip" data-f="prospecto">Prospectos</span>
+        </div>
+      </div>
+      <div style="padding:18px"><div class="proj-grid" id="projGrid"></div></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-editor">
+    <div class="card sync-card"><div style="padding:16px 18px">
+      <h2 style="margin:0 0 6px;color:var(--navy);font-size:15px">Sincronización con GitHub (datos compartidos)</h2>
+      <div class="hint">Sin token la app es <b>solo lectura</b> del <code>data.json</code> publicado. Para <b>guardar cambios que todos vean</b>, pega un token de GitHub con permiso <b>Contents: Read and write</b> sobre este repositorio. El token se guarda solo en <b>este navegador</b>, nunca en el repo.</div>
+      <div class="form-row">
+        <div class="fld" style="flex:1;min-width:280px"><label>Token de GitHub (fine-grained)</label><input type="password" id="ghToken" placeholder="github_pat_..."></div>
+        <div class="fld"><label>Owner</label><input id="ghOwner" style="width:150px"></div>
+        <div class="fld"><label>Repo</label><input id="ghRepo" style="width:150px"></div>
+        <div class="fld"><label>Branch</label><input id="ghBranch" style="width:90px"></div>
+        <div class="fld"><label>Archivo</label><input id="ghPath" style="width:110px"></div>
+      </div>
+      <div class="form-row" style="margin-bottom:6px">
+        <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted)"><input type="checkbox" id="ghAuto" style="width:auto"> Publicar automáticamente al editar</label>
+        <div class="spacer" style="flex:1"></div>
+        <button class="btn navy" id="ghSave">Guardar configuración</button>
+        <button class="btn primary" id="ghPublish">⬆ Publicar ahora</button>
+        <button class="btn" id="ghReload">↻ Recargar desde GitHub</button>
+        <button class="btn danger" id="ghClear">Borrar token</button>
+      </div>
+      <div class="statusline info" id="ghStatusLine">Modo local: los cambios se guardan en este navegador. Configura el token para compartirlos.</div>
+    </div></div>
+
+    <div class="toolbar">
+      <button class="btn navy" id="exportXlsx">⬇ Exportar a Excel</button>
+      <label class="btn primary" for="importXlsx">⬆ Importar desde Excel</label>
+      <input type="file" id="importXlsx" class="file-hidden" accept=".xlsx,.xls">
+      <button class="btn" id="downloadTemplate">📄 Descargar plantilla Excel</button>
+      <button class="btn" id="exportJson">💾 Descargar data.json</button>
+      <label class="btn" for="importJson">📂 Restaurar (JSON)</label>
+      <input type="file" id="importJson" class="file-hidden" accept=".json">
+    </div>
+
+    <div class="ed-tabs">
+      <div class="ed-tab active" data-ed="asig">Asignaciones</div>
+      <div class="ed-tab" data-ed="cons">Consultores</div>
+      <div class="ed-tab" data-ed="proj">Proyectos</div>
+    </div>
+
+    <div class="ed-pane active" id="ed-asig"><div class="card"><div style="padding:16px 18px">
+      <div class="form-row"><div class="fld"><label>Consultor</label><select id="asigConsultant"></select></div></div>
+      <div class="grid-wrap"><table class="list-table" id="asigTable"></table></div>
+      <div class="form-row" style="margin-top:14px">
+        <div class="fld"><label>Agregar proyecto</label><select id="newAsigProject"></select></div>
+        <button class="btn primary" id="addAsigRow">+ Agregar fila de proyecto</button>
+      </div>
+    </div></div></div>
+
+    <div class="ed-pane" id="ed-cons"><div class="card"><div style="padding:16px 18px">
+      <div class="form-row">
+        <div class="fld"><label>Nombre</label><input id="ncName" placeholder="Nombre completo" style="min-width:240px"></div>
+        <div class="fld"><label>Área</label><select id="ncArea"></select></div>
+        <button class="btn primary" id="addConsultant">+ Agregar consultor</button>
+      </div>
+      <div class="grid-wrap"><table class="list-table" id="consList"></table></div>
+    </div></div></div>
+
+    <div class="ed-pane" id="ed-proj"><div class="card"><div style="padding:16px 18px">
+      <div class="form-row">
+        <div class="fld"><label>Proyecto</label><input id="npName" placeholder="Nombre del proyecto" style="min-width:220px"></div>
+        <div class="fld"><label>Cliente</label><input id="npClient" placeholder="Cliente"></div>
+        <div class="fld"><label>Estatus</label><select id="npStatus"><option value="activo">Activo</option><option value="prospecto">Prospecto</option></select></div>
+        <button class="btn primary" id="addProject">+ Agregar proyecto</button>
+      </div>
+      <div class="grid-wrap"><table class="list-table" id="projList"></table></div>
+    </div></div></div>
+  </section>
+
+  <div class="foot">Grupo Staff · Business Process &amp; IT Consulting — Herramienta interna de proyección de capacidad</div>
+</main>
+
+<div class="overlay" id="overlay"><div class="modal">
+  <div class="modal-head"><div><h3 id="mTitle"></h3><div class="msub" id="mSub"></div></div><div class="x" id="mClose">&times;</div></div>
+  <div class="modal-body"><table class="mtable" id="mTable"></table></div>
+</div></div>
+
+<script>
+/* ============================ CONFIG ============================ */
+var AREAS = [
+  {id:'fin', name:'Consultor Finanzas', color:'#2b8fd0', tag:'fin'},
+  {id:'scm', name:'Consultor SCM',      color:'#39bec9', tag:'scm'},
+  {id:'dev', name:'Desarrollador',      color:'#e8722a', tag:'dev'}
+];
+var PALETTE = ['#2b8fd0','#39bec9','#5cb85c','#e8722a','#f4c430','#8e6fd0','#d0567f','#1a9c8f','#c2884a','#5a7fd0'];
+var STORAGE_KEY = 'gstaff_alloc_v1';
+var CFG_KEY = 'gstaff_gh_cfg';
+var TOKEN_KEY = 'gstaff_gh_token';
+var DATA_FILE = 'data.json';
+var state = null;
+var ghCfg = loadCfg();
+
+function loadCfg(){
+  try{ var c=JSON.parse(localStorage.getItem(CFG_KEY)); if(c) return c; }catch(e){}
+  return {owner:'omarhdezalvares', repo:'asignaciones', branch:'main', path:DATA_FILE, auto:true};
+}
+function ghToken(){ return localStorage.getItem(TOKEN_KEY)||''; }
+
+/* -------- Datos de ejemplo -------- */
+function seed(){
+  var cons = [
+    ['Ana Sofía Cuellar Arévalo','fin'],['David Fuentes','fin'],['Eduardo Garduño','fin'],
+    ['Mariana Contreras Jaramillo','fin'],['Mauricio Alan Pérez Dávila','fin'],['Valeria Lara','fin'],
+    ['Alejandro González Torres','scm'],['Alexis Hernandez','scm'],['Jaime Martinez','scm'],
+    ['José Santos Flores Silva','scm'],['Luis Fernando Herrera Acero','scm'],['Pablo Cortés Enriquez','scm'],
+    ['Sergio David Padilla Allende','scm'],
+    ['Adrian Ibi Gaspar Hernandez','dev'],['Andres Homero Villanueva Villalpando','dev'],['Arath Samir Mu Yee','dev'],
+    ['Francisco Rodriguez Colio','dev'],['Gabriel Ernesto Ríos Sánchez','dev'],['Jorge García','dev'],
+    ['Luis Rodrigo Fajardo Sondón','dev'],['René Omar Caro Rangel','dev'],['Valentín Moreno Rodríguez','dev']
+  ].map(function(c,i){return {id:'c'+(i+1), name:c[0], area:c[1]};});
+  var projs = [
+    ['D365 Finance - CEMEX','CEMEX','activo'],['Migración SCM D365 - Bimbo','Grupo Bimbo','activo'],
+    ['Business Central - Farmacias Similares','Farmacias Similares','activo'],
+    ['Integración API Bancaria - Banorte','Banorte','activo'],['Portal Autoservicio - FEMSA','FEMSA','activo'],
+    ['Mantenimiento & Soporte AMS','Cartera Varios','activo'],
+    ['Power BI Analytics - Liverpool','Liverpool','prospecto'],['CRM Sales D365 - Cinépolis','Cinépolis','prospecto']
+  ].map(function(p,i){return {id:'p'+(i+1), name:p[0], client:p[1], status:p[2], color:PALETTE[i%PALETTE.length]};});
+  var base = {
+    c1:[['p1',60],['p6',40]], c2:[['p3',100]], c3:[['p1',80],['p7',20]],
+    c4:[['p4',50],['p6',30]], c5:[['p1',100]], c6:[['p3',70],['p8',30]],
+    c7:[['p2',100]], c8:[['p2',60],['p6',40]], c9:[['p5',80]],
+    c10:[['p2',50],['p8',40]], c11:[['p5',100]], c12:[['p2',70]],
+    c13:[['p5',60],['p7',40]], c14:[['p4',80],['p6',20]], c15:[['p1',60],['p4',50]],
+    c16:[['p2',70],['p7',30]], c17:[['p3',100]], c18:[['p5',80],['p8',20]],
+    c19:[['p1',50],['p6',30]], c20:[['p4',100]], c21:[['p7',60]], c22:[['p2',60],['p8',30]]
+  };
+  var ramp = [ [1,1,1,1,1,1], [.4,.7,1,1,1,1], [1,1,1,.8,.6,.4], [1,1,1,1,1,1] ];
+  var assignments=[]; var months=monthList('2026-08');
+  cons.forEach(function(c,ci){
+    (base[c.id]||[]).forEach(function(r){
+      months.forEach(function(m,mi){
+        var pct=Math.round(r[1]*ramp[ci%ramp.length][mi]/5)*5;
+        if(pct>0) assignments.push({consultantId:c.id, projectId:r[0], month:m, pct:pct});
+      });
+    });
+  });
+  return {config:{startMonth:'2026-08'}, consultants:cons, projects:projs, assignments:assignments};
+}
+
+/* ============================ UTILIDADES ============================ */
+var MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+function monthList(start){var p=start.split('-');var y=+p[0],m=+p[1]-1,out=[];for(var i=0;i<6;i++){var yy=y+Math.floor((m+i)/12),mm=(m+i)%12;out.push(yy+'-'+String(mm+1).padStart(2,'0'));}return out;}
+function monthLabel(ym){var p=ym.split('-');return MES[+p[1]-1]+" '"+p[0].slice(2);}
+function areaOf(id){return AREAS.filter(function(a){return a.id===id;})[0]||AREAS[2];}
+function projOf(id){return state.projects.filter(function(p){return p.id===id;})[0];}
+function consOf(id){return state.consultants.filter(function(c){return c.id===id;})[0];}
+function cellColor(pct){if(pct<=0)return{bg:'#eceff3',fg:'#94a3b8'};if(pct>100)return{bg:'#f6c6bf',fg:'#a5342a'};if(pct>=70)return{bg:'#c9ebc6',fg:'#2e7d32'};return{bg:'#fde3c4',fg:'#b06a1a'};}
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); schedulePublish(); }
+function saveLocalOnly(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function loadLocal(){ try{var s=localStorage.getItem(STORAGE_KEY);if(s)return JSON.parse(s);}catch(e){} return seed(); }
+function totalFor(cId,month){return state.assignments.filter(function(a){return a.consultantId===cId&&a.month===month;}).reduce(function(s,a){return s+(+a.pct||0);},0);}
+
+/* ============================ GITHUB SYNC ============================ */
+function b64enc(str){ return btoa(unescape(encodeURIComponent(str))); }
+function setDot(color){ document.getElementById('ghDot').style.background=color; }
+function setStatus(kind, txt){
+  var el=document.getElementById('ghStatusLine'); if(el){ el.className='statusline '+(kind==='err'?'err':kind==='ok'?'ok':'info'); el.textContent=txt; }
+  var txtEl=document.getElementById('ghText');
+  if(kind==='ok'){ setDot('#5cb85c'); if(txtEl)txtEl.textContent='Publicado'; }
+  else if(kind==='err'){ setDot('#e8722a'); if(txtEl)txtEl.textContent='Error'; }
+  else if(kind==='pub'){ setDot('#f4c430'); if(txtEl)txtEl.textContent='Publicando…'; }
+  else if(kind==='dirty'){ setDot('#f4c430'); if(txtEl)txtEl.textContent='Sin publicar'; }
+  else if(kind==='read'){ setDot('#2b8fd0'); if(txtEl)txtEl.textContent='Lectura'; }
+  else { setDot('#94a3b8'); if(txtEl)txtEl.textContent='Local'; }
+}
+var pubTimer=null;
+function schedulePublish(){
+  if(!ghToken() || !ghCfg.auto){ if(ghToken()) setStatus('dirty','Cambios sin publicar. Usa “Publicar ahora”.'); return; }
+  setStatus('dirty','Cambios pendientes de publicar…');
+  clearTimeout(pubTimer); pubTimer=setTimeout(publishNow, 1500);
+}
+function apiUrl(){ return 'https://api.github.com/repos/'+ghCfg.owner+'/'+ghCfg.repo+'/contents/'+ghCfg.path; }
+function authHeaders(){ return {'Authorization':'Bearer '+ghToken(),'Accept':'application/vnd.github+json','Content-Type':'application/json'}; }
+function publishNow(){
+  var t=ghToken();
+  if(!t){ setStatus('info','Sin token: no se puede publicar. Configúralo arriba.'); return; }
+  setStatus('pub','Publicando en GitHub…');
+  fetch(apiUrl()+'?ref='+encodeURIComponent(ghCfg.branch)+'&t='+Date.now(),{headers:authHeaders(),cache:'no-store'})
+    .then(function(r){ return r.ok? r.json(): null; })
+    .then(function(meta){
+      var body={ message:'Actualiza asignaciones — '+new Date().toLocaleString('es-MX'),
+                 content:b64enc(JSON.stringify(state,null,2)), branch:ghCfg.branch };
+      if(meta && meta.sha) body.sha=meta.sha;
+      return fetch(apiUrl(),{method:'PUT',headers:authHeaders(),body:JSON.stringify(body)});
+    })
+    .then(function(r){ if(!r.ok){ return r.json().then(function(e){ throw new Error(e.message||('HTTP '+r.status)); }); } return r.json(); })
+    .then(function(){ setStatus('ok','Publicado ✓  '+new Date().toLocaleTimeString('es-MX')+'. Los demás verán los cambios (puede tardar ~1 min en propagarse).'); })
+    .catch(function(e){ setStatus('err','No se pudo publicar: '+e.message+'. Revisa el token/permiso Contents:Read and write.'); });
+}
+function reloadFromGitHub(silent){
+  return fetch(DATA_FILE+'?t='+Date.now(),{cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error('no data.json'); return r.json(); })
+    .then(function(remote){
+      if(remote && remote.consultants){ state=normalize(remote); saveLocalOnly(); document.getElementById('startMonth').value=state.config.startMonth; renderAll();
+        if(!silent) setStatus(ghToken()?'ok':'read', ghToken()?'Datos cargados desde GitHub.':'Mostrando datos publicados (solo lectura).'); }
+    })
+    .catch(function(){ if(!silent) setStatus('info','No se encontró data.json en línea; mostrando datos locales.'); });
+}
+function normalize(d){
+  d.config=d.config||{startMonth:'2026-08'};
+  (d.projects||[]).forEach(function(p,i){ if(!p.color) p.color=PALETTE[i%PALETTE.length]; });
+  d.assignments=d.assignments||[]; d.consultants=d.consultants||[]; d.projects=d.projects||[];
+  return d;
+}
+
+/* ============================ RENDER: CONSULTORES ============================ */
+function renderAlloc(){
+  var months=monthList(state.config.startMonth);
+  document.getElementById('periodLabel').textContent=monthLabel(months[0])+' — '+monthLabel(months[5]);
+  var totalC=state.consultants.length, util=[], bench=0;
+  state.consultants.forEach(function(c){
+    util.push(months.reduce(function(s,m){return s+totalFor(c.id,m);},0)/6);
+    if(months.some(function(m){return totalFor(c.id,m)===0;})) bench++;
+  });
+  var avgUtil=Math.round(util.reduce(function(s,v){return s+v;},0)/(totalC||1));
+  var act=state.projects.filter(function(p){return p.status==='activo';}).length;
+  var pros=state.projects.filter(function(p){return p.status==='prospecto';}).length;
+  document.getElementById('kpis').innerHTML=
+    kpi('Consultores',totalC,'total del equipo','')+kpi('Utilización prom.',avgUtil+'%','sobre el periodo','k-green')+
+    kpi('Proy. activos',act,'en ejecución','k-blue')+kpi('Prospectos',pros,'en pipeline','k-yellow')+
+    kpi('Con disponibilidad',bench,'algún mes en banca','k-orange');
+  var t=document.getElementById('allocTable');
+  var head='<thead><tr><th class="name-col">Consultor</th>'+months.map(function(m){return '<th>'+monthLabel(m)+'</th>';}).join('')+'</tr></thead>';
+  var body='<tbody>';
+  AREAS.forEach(function(a){
+    var list=state.consultants.filter(function(c){return c.area===a.id;}); if(!list.length) return;
+    body+='<tr class="area-row"><td colspan="7"><span class="abadge" style="background:'+a.color+'"></span>'+a.name+' · '+list.length+'</td></tr>';
+    list.forEach(function(c){
+      body+='<tr class="crow" data-c="'+c.id+'"><td class="name-col">'+c.name+'<small>'+a.name+'<span class="chev">▸ ver proyectos</span></small></td>';
+      months.forEach(function(m){
+        var tot=totalFor(c.id,m),col=cellColor(tot);
+        var n=state.assignments.filter(function(x){return x.consultantId===c.id&&x.month===m&&x.pct>0;}).length;
+        body+='<td class="cell" style="background:'+col.bg+';color:'+col.fg+'">'+tot+'%<span class="mini">'+(tot<=0?'disp.':n+' proy.')+'</span></td>';
+      });
+      body+='</tr>';
+    });
+  });
+  t.innerHTML=head+body+'</tbody>';
+  Array.prototype.forEach.call(t.querySelectorAll('.crow'),function(r){r.addEventListener('click',function(){openConsultant(r.getAttribute('data-c'));});});
+}
+function kpi(label,val,sub,cls){return '<div class="kpi '+cls+'"><div class="k-label">'+label+'</div><div class="k-val">'+val+'</div><div class="k-sub">'+sub+'</div></div>';}
+
+/* ============================ MODAL ============================ */
+function openConsultant(cId){
+  var c=consOf(cId),a=areaOf(c.area),months=monthList(state.config.startMonth);
+  document.getElementById('mTitle').textContent=c.name;
+  document.getElementById('mSub').textContent=a.name;
+  var pIds=[]; state.assignments.forEach(function(x){if(x.consultantId===cId&&pIds.indexOf(x.projectId)<0)pIds.push(x.projectId);});
+  var head='<thead><tr><th class="pj" style="text-align:left">Proyecto</th>'+months.map(function(m){return '<th>'+monthLabel(m)+'</th>';}).join('')+'</tr></thead>';
+  var body='<tbody>';
+  if(!pIds.length) body+='<tr><td colspan="7" style="padding:20px;color:var(--muted)">Sin proyectos asignados en el periodo.</td></tr>';
+  pIds.forEach(function(pid){
+    var p=projOf(pid); if(!p) return;
+    body+='<tr><td class="pj"><span class="pill" style="background:'+p.color+'"></span>'+p.name+' <span class="badge '+p.status+'" style="transform:scale(.82)">'+p.status+'</span></td>';
+    months.forEach(function(m){var a2=state.assignments.filter(function(x){return x.consultantId===cId&&x.projectId===pid&&x.month===m;})[0];body+='<td>'+(a2&&a2.pct?a2.pct+'%':'—')+'</td>';});
+    body+='</tr>';
+  });
+  var foot='<tfoot><tr><td class="pj">Total mensual</td>'+months.map(function(m){var tot=totalFor(cId,m),col=cellColor(tot);return '<td style="color:'+col.fg+'">'+tot+'%</td>';}).join('')+'</tr></tfoot>';
+  document.getElementById('mTable').innerHTML=head+body+'</tbody>'+foot;
+  document.getElementById('overlay').classList.add('open');
+}
+document.getElementById('mClose').addEventListener('click',function(){document.getElementById('overlay').classList.remove('open');});
+document.getElementById('overlay').addEventListener('click',function(e){if(e.target.id==='overlay')e.currentTarget.classList.remove('open');});
+
+/* ============================ RENDER: PROYECTOS ============================ */
+var projFilter='todos';
+function renderProjects(){
+  var act=state.projects.filter(function(p){return p.status==='activo';}).length;
+  var pros=state.projects.filter(function(p){return p.status==='prospecto';}).length;
+  document.getElementById('projKpis').innerHTML=
+    kpi('Proyectos',state.projects.length,'en portafolio','')+kpi('Activos',act,'en ejecución','k-green')+
+    kpi('Prospectos',pros,'en pipeline','k-yellow')+
+    kpi('Personas asignadas',new Set(state.assignments.map(function(a){return a.consultantId;})).size,'con al menos un proyecto','k-blue');
+  var grid=document.getElementById('projGrid'); grid.innerHTML='';
+  state.projects.filter(function(p){return projFilter==='todos'||p.status===projFilter;}).forEach(function(p){
+    var byC={}; state.assignments.filter(function(a){return a.projectId===p.id;}).forEach(function(a){byC[a.consultantId]=(byC[a.consultantId]||0)+(+a.pct||0);});
+    var people=Object.keys(byC).map(function(cid){return {c:consOf(cid),avg:Math.round(byC[cid]/6)};}).filter(function(x){return x.c;}).sort(function(a,b){return b.avg-a.avg;});
+    var fteAvg=(people.reduce(function(s,x){return s+x.avg;},0)/100).toFixed(1);
+    var rows=people.map(function(x){return '<div class="prow"><span>'+x.c.name+'</span><span>'+x.avg+'%</span></div>';}).join('')||'<div class="prow" style="color:var(--muted)"><span>Sin asignaciones aún</span><span></span></div>';
+    var el=document.createElement('div'); el.className='pcard'; el.style.borderTopColor=p.color;
+    el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:start"><div><h3>'+p.name+'</h3><div class="client">'+(p.client||'—')+'</div></div><span class="badge '+p.status+'">'+p.status+'</span></div>'+
+      '<div class="pmeta"><div><b>'+people.length+'</b>consultores</div><div><b>'+fteAvg+'</b>FTE prom.</div></div>'+rows;
+    grid.appendChild(el);
+  });
+}
+Array.prototype.forEach.call(document.querySelectorAll('#projFilters .chip'),function(ch){ch.addEventListener('click',function(){document.querySelectorAll('#projFilters .chip').forEach(function(x){x.classList.remove('active');});ch.classList.add('active');projFilter=ch.getAttribute('data-f');renderProjects();});});
+
+/* ============================ EDITOR ============================ */
+function fillAreaSelect(sel){sel.innerHTML=AREAS.map(function(a){return '<option value="'+a.id+'">'+a.name+'</option>';}).join('');}
+function renderEditor(){
+  fillAreaSelect(document.getElementById('ncArea'));
+  document.getElementById('consList').innerHTML='<thead><tr><th>Nombre</th><th>Área</th><th style="width:80px"></th></tr></thead><tbody>'+
+    state.consultants.map(function(c){return '<tr><td><input value="'+esc(c.name)+'" data-edit="cname" data-id="'+c.id+'" style="width:100%"></td><td><select data-edit="carea" data-id="'+c.id+'">'+AREAS.map(function(a){return '<option value="'+a.id+'" '+(a.id===c.area?'selected':'')+'>'+a.name+'</option>';}).join('')+'</select></td><td><button class="btn danger sm" data-del="cons" data-id="'+c.id+'">Eliminar</button></td></tr>';}).join('')+'</tbody>';
+  document.getElementById('projList').innerHTML='<thead><tr><th>Proyecto</th><th>Cliente</th><th>Estatus</th><th style="width:80px"></th></tr></thead><tbody>'+
+    state.projects.map(function(p){return '<tr><td><input value="'+esc(p.name)+'" data-edit="pname" data-id="'+p.id+'" style="width:100%"></td><td><input value="'+esc(p.client||'')+'" data-edit="pclient" data-id="'+p.id+'"></td><td><select data-edit="pstatus" data-id="'+p.id+'"><option value="activo" '+(p.status==='activo'?'selected':'')+'>Activo</option><option value="prospecto" '+(p.status==='prospecto'?'selected':'')+'>Prospecto</option></select></td><td><button class="btn danger sm" data-del="proj" data-id="'+p.id+'">Eliminar</button></td></tr>';}).join('')+'</tbody>';
+  var sc=document.getElementById('asigConsultant'),prev=sc.value;
+  sc.innerHTML=state.consultants.map(function(c){return '<option value="'+c.id+'">'+c.name+'</option>';}).join(''); if(prev)sc.value=prev;
+  document.getElementById('newAsigProject').innerHTML=state.projects.map(function(p){return '<option value="'+p.id+'">'+p.name+'</option>';}).join('');
+  renderAsigTable();
+}
+function renderAsigTable(){
+  var cId=document.getElementById('asigConsultant').value,months=monthList(state.config.startMonth),t=document.getElementById('asigTable');
+  var pIds=[]; state.assignments.forEach(function(a){if(a.consultantId===cId&&pIds.indexOf(a.projectId)<0)pIds.push(a.projectId);});
+  var head='<thead><tr><th style="text-align:left">Proyecto</th>'+months.map(function(m){return '<th>'+monthLabel(m)+'</th>';}).join('')+'<th></th></tr></thead>';
+  var body='<tbody>';
+  if(!pIds.length) body+='<tr><td colspan="8" style="color:var(--muted)">Aún no hay proyectos. Agrégalos abajo ▼</td></tr>';
+  pIds.forEach(function(pid){
+    var p=projOf(pid); if(!p) return;
+    body+='<tr><td style="text-align:left"><span class="pill" style="background:'+p.color+'"></span>'+p.name+'</td>';
+    months.forEach(function(m){var a=state.assignments.filter(function(x){return x.consultantId===cId&&x.projectId===pid&&x.month===m;})[0];body+='<td><input type="number" min="0" max="200" step="5" value="'+(a?a.pct:'')+'" style="width:56px;text-align:center" data-asig="1" data-c="'+cId+'" data-p="'+pid+'" data-m="'+m+'"></td>';});
+    body+='<td><button class="btn danger sm" data-delasig="1" data-c="'+cId+'" data-p="'+pid+'">Quitar</button></td></tr>';
+  });
+  body+='<tr class="totrow"><td style="text-align:left">Total mensual</td>'+months.map(function(m){var tot=totalFor(cId,m),col=cellColor(tot);return '<td style="color:'+col.fg+'">'+tot+'%</td>';}).join('')+'<td></td></tr>';
+  t.innerHTML=head+body+'</tbody>';
+}
+function esc(s){return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function uid(pre){return pre+Date.now().toString(36)+Math.floor(Math.random()*1000);}
+document.getElementById('view-editor').addEventListener('input',function(e){
+  var el=e.target;
+  if(el.getAttribute('data-edit')){
+    var id=el.getAttribute('data-id'),k=el.getAttribute('data-edit');
+    if(k==='cname')consOf(id).name=el.value; if(k==='carea')consOf(id).area=el.value;
+    if(k==='pname')projOf(id).name=el.value; if(k==='pclient')projOf(id).client=el.value; if(k==='pstatus')projOf(id).status=el.value;
+    save();
+  }
+  if(el.getAttribute('data-asig')){
+    var c=el.getAttribute('data-c'),p=el.getAttribute('data-p'),m=el.getAttribute('data-m');
+    var val=parseInt(el.value,10); if(isNaN(val))val=0;
+    var a=state.assignments.filter(function(x){return x.consultantId===c&&x.projectId===p&&x.month===m;})[0];
+    if(a){ if(val>0)a.pct=val; else state.assignments=state.assignments.filter(function(x){return x!==a;}); }
+    else if(val>0){ state.assignments.push({consultantId:c,projectId:p,month:m,pct:val}); }
+    save();
+    var months=monthList(state.config.startMonth),tr=document.querySelector('#asigTable .totrow');
+    if(tr){tr.innerHTML='<td style="text-align:left">Total mensual</td>'+months.map(function(mm){var tt=totalFor(c,mm),col=cellColor(tt);return '<td style="color:'+col.fg+'">'+tt+'%</td>';}).join('')+'<td></td>';}
+  }
+});
+document.getElementById('view-editor').addEventListener('click',function(e){
+  var el=e.target;
+  if(el.getAttribute('data-del')==='cons'){var id=el.getAttribute('data-id');if(confirm('¿Eliminar consultor y sus asignaciones?')){state.consultants=state.consultants.filter(function(c){return c.id!==id;});state.assignments=state.assignments.filter(function(a){return a.consultantId!==id;});save();renderEditor();}}
+  if(el.getAttribute('data-del')==='proj'){var id=el.getAttribute('data-id');if(confirm('¿Eliminar proyecto y sus asignaciones?')){state.projects=state.projects.filter(function(p){return p.id!==id;});state.assignments=state.assignments.filter(function(a){return a.projectId!==id;});save();renderEditor();}}
+  if(el.getAttribute('data-delasig')){var c=el.getAttribute('data-c'),p=el.getAttribute('data-p');state.assignments=state.assignments.filter(function(a){return !(a.consultantId===c&&a.projectId===p);});save();renderAsigTable();}
+});
+document.getElementById('asigConsultant').addEventListener('change',renderAsigTable);
+document.getElementById('addAsigRow').addEventListener('click',function(){var c=document.getElementById('asigConsultant').value,p=document.getElementById('newAsigProject').value;if(!c||!p)return;var months=monthList(state.config.startMonth);if(!state.assignments.some(function(a){return a.consultantId===c&&a.projectId===p;})){state.assignments.push({consultantId:c,projectId:p,month:months[0],pct:0});save();}renderAsigTable();});
+document.getElementById('addConsultant').addEventListener('click',function(){var n=document.getElementById('ncName').value.trim();if(!n)return;state.consultants.push({id:uid('c'),name:n,area:document.getElementById('ncArea').value});document.getElementById('ncName').value='';save();renderEditor();});
+document.getElementById('addProject').addEventListener('click',function(){var n=document.getElementById('npName').value.trim();if(!n)return;state.projects.push({id:uid('p'),name:n,client:document.getElementById('npClient').value.trim(),status:document.getElementById('npStatus').value,color:PALETTE[state.projects.length%PALETTE.length]});document.getElementById('npName').value='';document.getElementById('npClient').value='';save();renderEditor();});
+Array.prototype.forEach.call(document.querySelectorAll('.ed-tab'),function(t){t.addEventListener('click',function(){document.querySelectorAll('.ed-tab').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.ed-pane').forEach(function(x){x.classList.remove('active');});t.classList.add('active');document.getElementById('ed-'+t.getAttribute('data-ed')).classList.add('active');});});
+
+/* ============================ EXCEL / JSON ============================ */
+function buildWorkbook(){
+  var wb=XLSX.utils.book_new();
+  var cs=state.consultants.map(function(c){return {Nombre:c.name,Area:areaOf(c.area).name};});
+  var ps=state.projects.map(function(p){return {Proyecto:p.name,Cliente:p.client||'',Estatus:p.status};});
+  var as=[]; state.assignments.forEach(function(a){var c=consOf(a.consultantId),p=projOf(a.projectId);if(c&&p)as.push({Consultor:c.name,Proyecto:p.name,Mes:a.month,Porcentaje:a.pct});});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(cs),'Consultores');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(ps),'Proyectos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(as.length?as:[{Consultor:'',Proyecto:'',Mes:'',Porcentaje:''}]),'Asignaciones');
+  return wb;
+}
+document.getElementById('exportXlsx').addEventListener('click',function(){XLSX.writeFile(buildWorkbook(),'Asignacion_GrupoStaff_'+state.config.startMonth+'.xlsx');});
+document.getElementById('downloadTemplate').addEventListener('click',function(){
+  var wb=XLSX.utils.book_new(),months=monthList(state.config.startMonth);
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{Nombre:'Ej. Juan Pérez',Area:'Consultor Finanzas'}]),'Consultores');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{Proyecto:'Ej. D365 Finance',Cliente:'Cliente X',Estatus:'activo'}]),'Proyectos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{Consultor:'Ej. Juan Pérez',Proyecto:'Ej. D365 Finance',Mes:months[0],Porcentaje:80}]),'Asignaciones');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['PLANTILLA DE CARGA · GRUPO STAFF'],[],['Consultores:','Nombre | Area (Consultor Finanzas / Consultor SCM / Desarrollador)'],['Proyectos:','Proyecto | Cliente | Estatus (activo / prospecto)'],['Asignaciones:','Consultor | Proyecto | Mes (AAAA-MM) | Porcentaje'],[],['Los nombres deben coincidir exactamente entre hojas.']]),'Instrucciones');
+  XLSX.writeFile(wb,'Plantilla_Asignacion_GrupoStaff.xlsx');
+});
+document.getElementById('importXlsx').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(ev){try{importFromWorkbook(XLSX.read(ev.target.result,{type:'array'}));}catch(err){alert('No se pudo leer: '+err.message);}e.target.value='';};rd.readAsArrayBuffer(f);});
+function areaIdFromName(n){n=(n||'').toLowerCase();if(n.indexOf('finan')>=0)return 'fin';if(n.indexOf('scm')>=0||n.indexOf('supply')>=0)return 'scm';return 'dev';}
+function importFromWorkbook(wb){
+  var shC=wb.Sheets['Consultores'],shP=wb.Sheets['Proyectos'],shA=wb.Sheets['Asignaciones'];
+  if(!shC||!shP||!shA){alert('El archivo debe tener las hojas: Consultores, Proyectos y Asignaciones.');return;}
+  var rc=XLSX.utils.sheet_to_json(shC),rp=XLSX.utils.sheet_to_json(shP),ra=XLSX.utils.sheet_to_json(shA);
+  var cons=[],cmap={}; rc.forEach(function(r){var name=(r.Nombre||r.nombre||'').toString().trim();if(!name)return;var id=uid('c');cons.push({id:id,name:name,area:areaIdFromName(r.Area||r.area)});cmap[name.toLowerCase()]=id;});
+  var projs=[],pmap={}; rp.forEach(function(r,i){var name=(r.Proyecto||r.proyecto||'').toString().trim();if(!name)return;var id=uid('p');var st=(r.Estatus||r.estatus||'activo').toString().toLowerCase().indexOf('prosp')>=0?'prospecto':'activo';projs.push({id:id,name:name,client:(r.Cliente||r.cliente||'').toString().trim(),status:st,color:PALETTE[i%PALETTE.length]});pmap[name.toLowerCase()]=id;});
+  var asig=[]; ra.forEach(function(r){var cn=(r.Consultor||r.consultor||'').toString().trim().toLowerCase(),pn=(r.Proyecto||r.proyecto||'').toString().trim().toLowerCase(),m=(r.Mes||r.mes||'').toString().trim(),pct=parseInt(r.Porcentaje||r.porcentaje||r['%']||0,10);if(cmap[cn]&&pmap[pn]&&m&&pct>0)asig.push({consultantId:cmap[cn],projectId:pmap[pn],month:m,pct:pct});});
+  if(!cons.length){alert('No se encontraron consultores en la hoja.');return;}
+  var starts=asig.map(function(a){return a.month;}).filter(Boolean).sort();
+  state={config:{startMonth:starts[0]||state.config.startMonth},consultants:cons,projects:projs,assignments:asig};
+  document.getElementById('startMonth').value=state.config.startMonth; save(); renderAll();
+  alert('Importación completa: '+cons.length+' consultores, '+projs.length+' proyectos, '+asig.length+' asignaciones.'+(ghToken()?' Publicando en GitHub…':''));
+}
+document.getElementById('exportJson').addEventListener('click',function(){var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='data.json';a.click();});
+document.getElementById('importJson').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(ev){try{state=normalize(JSON.parse(ev.target.result));document.getElementById('startMonth').value=state.config.startMonth;save();renderAll();alert('Datos restaurados.'+(ghToken()?' Publicando en GitHub…':''));}catch(err){alert('Archivo inválido.');}e.target.value='';};rd.readAsText(f);});
+document.getElementById('resetBtn').addEventListener('click',function(){if(confirm('¿Restablecer a los datos de ejemplo?')){state=seed();document.getElementById('startMonth').value=state.config.startMonth;save();renderAll();}});
+
+/* ============================ GITHUB PANEL EVENTS ============================ */
+function fillGhForm(){
+  document.getElementById('ghToken').value=ghToken();
+  document.getElementById('ghOwner').value=ghCfg.owner;
+  document.getElementById('ghRepo').value=ghCfg.repo;
+  document.getElementById('ghBranch').value=ghCfg.branch;
+  document.getElementById('ghPath').value=ghCfg.path;
+  document.getElementById('ghAuto').checked=!!ghCfg.auto;
+}
+document.getElementById('ghSave').addEventListener('click',function(){
+  ghCfg={owner:document.getElementById('ghOwner').value.trim(),repo:document.getElementById('ghRepo').value.trim(),branch:document.getElementById('ghBranch').value.trim()||'main',path:document.getElementById('ghPath').value.trim()||DATA_FILE,auto:document.getElementById('ghAuto').checked};
+  localStorage.setItem(CFG_KEY,JSON.stringify(ghCfg));
+  var tk=document.getElementById('ghToken').value.trim();
+  if(tk) localStorage.setItem(TOKEN_KEY,tk);
+  setStatus(ghToken()?'ok':'info', ghToken()?'Configuración guardada. Ya puedes publicar cambios.':'Configuración guardada (sin token: solo lectura).');
+});
+document.getElementById('ghPublish').addEventListener('click',function(){var tk=document.getElementById('ghToken').value.trim();if(tk)localStorage.setItem(TOKEN_KEY,tk);publishNow();});
+document.getElementById('ghReload').addEventListener('click',function(){setStatus('info','Recargando desde GitHub…');reloadFromGitHub(false);});
+document.getElementById('ghClear').addEventListener('click',function(){localStorage.removeItem(TOKEN_KEY);document.getElementById('ghToken').value='';setStatus('info','Token borrado de este navegador. Modo solo lectura.');});
+
+/* ============================ NAV & INIT ============================ */
+Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});t.classList.add('active');var v=t.getAttribute('data-view');document.getElementById('view-'+v).classList.add('active');if(v==='editor')renderEditor();});});
+document.getElementById('startMonth').addEventListener('change',function(){state.config.startMonth=this.value;save();renderAll();});
+function renderAll(){renderAlloc();renderProjects();if(document.getElementById('view-editor').classList.contains('active'))renderEditor();}
+
+// Arranque: local primero (rápido), luego intenta el data.json compartido.
+state=normalize(loadLocal());
+document.getElementById('startMonth').value=state.config.startMonth;
+fillGhForm();
+setStatus(ghToken()?'ok':'read', ghToken()?'Modo edición: los cambios se publican en GitHub.':'Cargando datos publicados…');
+renderAll();
+reloadFromGitHub(true).then(function(){ if(!ghToken()) setStatus('read','Mostrando datos publicados (solo lectura). Configura un token para editar.'); });
+</script>
+</body>
+</html>

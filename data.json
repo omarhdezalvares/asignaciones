@@ -1,0 +1,1437 @@
+{
+  "config": {
+    "startMonth": "2026-08"
+  },
+  "consultants": [
+    {
+      "id": "c1",
+      "name": "Ana Sofía Cuellar Arévalo",
+      "area": "fin"
+    },
+    {
+      "id": "c2",
+      "name": "David Fuentes",
+      "area": "fin"
+    },
+    {
+      "id": "c3",
+      "name": "Eduardo Garduño",
+      "area": "fin"
+    },
+    {
+      "id": "c4",
+      "name": "Mariana Contreras Jaramillo",
+      "area": "fin"
+    },
+    {
+      "id": "c5",
+      "name": "Mauricio Alan Pérez Dávila",
+      "area": "fin"
+    },
+    {
+      "id": "c6",
+      "name": "Valeria Lara",
+      "area": "fin"
+    },
+    {
+      "id": "c7",
+      "name": "Alejandro González Torres",
+      "area": "scm"
+    },
+    {
+      "id": "c8",
+      "name": "Alexis Hernandez",
+      "area": "scm"
+    },
+    {
+      "id": "c9",
+      "name": "Jaime Martinez",
+      "area": "scm"
+    },
+    {
+      "id": "c10",
+      "name": "José Santos Flores Silva",
+      "area": "scm"
+    },
+    {
+      "id": "c11",
+      "name": "Luis Fernando Herrera Acero",
+      "area": "scm"
+    },
+    {
+      "id": "c12",
+      "name": "Pablo Cortés Enriquez",
+      "area": "scm"
+    },
+    {
+      "id": "c13",
+      "name": "Sergio David Padilla Allende",
+      "area": "scm"
+    },
+    {
+      "id": "c14",
+      "name": "Adrian Ibi Gaspar Hernandez",
+      "area": "dev"
+    },
+    {
+      "id": "c15",
+      "name": "Andres Homero Villanueva Villalpando",
+      "area": "dev"
+    },
+    {
+      "id": "c16",
+      "name": "Arath Samir Mu Yee",
+      "area": "dev"
+    },
+    {
+      "id": "c17",
+      "name": "Francisco Rodriguez Colio",
+      "area": "dev"
+    },
+    {
+      "id": "c18",
+      "name": "Gabriel Ernesto Ríos Sánchez",
+      "area": "dev"
+    },
+    {
+      "id": "c19",
+      "name": "Jorge García",
+      "area": "dev"
+    },
+    {
+      "id": "c20",
+      "name": "Luis Rodrigo Fajardo Sondón",
+      "area": "dev"
+    },
+    {
+      "id": "c21",
+      "name": "René Omar Caro Rangel",
+      "area": "dev"
+    },
+    {
+      "id": "c22",
+      "name": "Valentín Moreno Rodríguez",
+      "area": "dev"
+    }
+  ],
+  "projects": [
+    {
+      "id": "p1",
+      "name": "D365 Finance - CEMEX",
+      "client": "CEMEX",
+      "status": "activo",
+      "color": "#2b8fd0"
+    },
+    {
+      "id": "p2",
+      "name": "Migración SCM D365 - Bimbo",
+      "client": "Grupo Bimbo",
+      "status": "activo",
+      "color": "#39bec9"
+    },
+    {
+      "id": "p3",
+      "name": "Business Central - Farmacias Similares",
+      "client": "Farmacias Similares",
+      "status": "activo",
+      "color": "#5cb85c"
+    },
+    {
+      "id": "p4",
+      "name": "Integración API Bancaria - Banorte",
+      "client": "Banorte",
+      "status": "activo",
+      "color": "#e8722a"
+    },
+    {
+      "id": "p5",
+      "name": "Portal Autoservicio - FEMSA",
+      "client": "FEMSA",
+      "status": "activo",
+      "color": "#f4c430"
+    },
+    {
+      "id": "p6",
+      "name": "Mantenimiento & Soporte AMS",
+      "client": "Cartera Varios",
+      "status": "activo",
+      "color": "#8e6fd0"
+    },
+    {
+      "id": "p7",
+      "name": "Power BI Analytics - Liverpool",
+      "client": "Liverpool",
+      "status": "prospecto",
+      "color": "#d0567f"
+    },
+    {
+      "id": "p8",
+      "name": "CRM Sales D365 - Cinépolis",
+      "client": "Cinépolis",
+      "status": "prospecto",
+      "color": "#1a9c8f"
+    }
+  ],
+  "assignments": [
+    {
+      "consultantId": "c1",
+      "projectId": "p1",
+      "month": "2026-08",
+      "pct": 60
+    },
+    {
+      "consultantId": "c1",
+      "projectId": "p1",
+      "month": "2026-09",
+      "pct": 60
+    },
+    {
+      "consultantId": "c1",
+      "projectId": "p1",
+      "month": "2026-10",
+      "pct": 60
+    },
+    {
+      "consultantId": "c1",
+      "projectId": "p1",
+      "month": "2026-11",
+      "pct": 60
+    },
+    {
+      "consultantId": "c1",
+      "projectId": "p1",
+      "month": "2026-12",
+      "pct": 60
+    },
+    {
+      "consultantId": "c1",
+      "projectId": "p1",
+      "month": "2027-01",
+      "pct": 60
+    },
+    {
+      "consultantId": "c1",
+      "projectId": "p6",
+      "month": "2026-08",
+      "pct": 40
+    },
+    {
+      "consultantId": "c1",
+      "projectId": "p6",
+      "month": "2026-09",
+      "pct": 40
+    },
+    {
+      "consultantId": "c1",
+      "projectId": "p6",
+      "month": "2026-10",
+      "pct": 40
+    },
+    {
+      "consultantId": "c1",
+      "projectId": "p6",
+      "month": "2026-11",
+      "pct": 40
+    },
+    {
+      "consultantId": "c1",
+      "projectId": "p6",
+      "month": "2026-12",
+      "pct": 40
+    },
+    {
+      "consultantId": "c1",
+      "projectId": "p6",
+      "month": "2027-01",
+      "pct": 40
+    },
+    {
+      "consultantId": "c2",
+      "projectId": "p3",
+      "month": "2026-08",
+      "pct": 40
+    },
+    {
+      "consultantId": "c2",
+      "projectId": "p3",
+      "month": "2026-09",
+      "pct": 70
+    },
+    {
+      "consultantId": "c2",
+      "projectId": "p3",
+      "month": "2026-10",
+      "pct": 100
+    },
+    {
+      "consultantId": "c2",
+      "projectId": "p3",
+      "month": "2026-11",
+      "pct": 100
+    },
+    {
+      "consultantId": "c2",
+      "projectId": "p3",
+      "month": "2026-12",
+      "pct": 100
+    },
+    {
+      "consultantId": "c2",
+      "projectId": "p3",
+      "month": "2027-01",
+      "pct": 100
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p1",
+      "month": "2026-08",
+      "pct": 80
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p1",
+      "month": "2026-09",
+      "pct": 80
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p1",
+      "month": "2026-10",
+      "pct": 80
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p1",
+      "month": "2026-11",
+      "pct": 65
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p1",
+      "month": "2026-12",
+      "pct": 50
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p1",
+      "month": "2027-01",
+      "pct": 30
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p7",
+      "month": "2026-08",
+      "pct": 20
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p7",
+      "month": "2026-09",
+      "pct": 20
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p7",
+      "month": "2026-10",
+      "pct": 20
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p7",
+      "month": "2026-11",
+      "pct": 15
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p7",
+      "month": "2026-12",
+      "pct": 10
+    },
+    {
+      "consultantId": "c3",
+      "projectId": "p7",
+      "month": "2027-01",
+      "pct": 10
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p4",
+      "month": "2026-08",
+      "pct": 50
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p4",
+      "month": "2026-09",
+      "pct": 50
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p4",
+      "month": "2026-10",
+      "pct": 50
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p4",
+      "month": "2026-11",
+      "pct": 50
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p4",
+      "month": "2026-12",
+      "pct": 50
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p4",
+      "month": "2027-01",
+      "pct": 50
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p6",
+      "month": "2026-08",
+      "pct": 30
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p6",
+      "month": "2026-09",
+      "pct": 30
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p6",
+      "month": "2026-10",
+      "pct": 30
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p6",
+      "month": "2026-11",
+      "pct": 30
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p6",
+      "month": "2026-12",
+      "pct": 30
+    },
+    {
+      "consultantId": "c4",
+      "projectId": "p6",
+      "month": "2027-01",
+      "pct": 30
+    },
+    {
+      "consultantId": "c5",
+      "projectId": "p1",
+      "month": "2026-08",
+      "pct": 100
+    },
+    {
+      "consultantId": "c5",
+      "projectId": "p1",
+      "month": "2026-09",
+      "pct": 100
+    },
+    {
+      "consultantId": "c5",
+      "projectId": "p1",
+      "month": "2026-10",
+      "pct": 100
+    },
+    {
+      "consultantId": "c5",
+      "projectId": "p1",
+      "month": "2026-11",
+      "pct": 100
+    },
+    {
+      "consultantId": "c5",
+      "projectId": "p1",
+      "month": "2026-12",
+      "pct": 100
+    },
+    {
+      "consultantId": "c5",
+      "projectId": "p1",
+      "month": "2027-01",
+      "pct": 100
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p3",
+      "month": "2026-08",
+      "pct": 30
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p3",
+      "month": "2026-09",
+      "pct": 50
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p3",
+      "month": "2026-10",
+      "pct": 70
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p3",
+      "month": "2026-11",
+      "pct": 70
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p3",
+      "month": "2026-12",
+      "pct": 70
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p3",
+      "month": "2027-01",
+      "pct": 70
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p8",
+      "month": "2026-08",
+      "pct": 10
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p8",
+      "month": "2026-09",
+      "pct": 20
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p8",
+      "month": "2026-10",
+      "pct": 30
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p8",
+      "month": "2026-11",
+      "pct": 30
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p8",
+      "month": "2026-12",
+      "pct": 30
+    },
+    {
+      "consultantId": "c6",
+      "projectId": "p8",
+      "month": "2027-01",
+      "pct": 30
+    },
+    {
+      "consultantId": "c7",
+      "projectId": "p2",
+      "month": "2026-08",
+      "pct": 100
+    },
+    {
+      "consultantId": "c7",
+      "projectId": "p2",
+      "month": "2026-09",
+      "pct": 100
+    },
+    {
+      "consultantId": "c7",
+      "projectId": "p2",
+      "month": "2026-10",
+      "pct": 100
+    },
+    {
+      "consultantId": "c7",
+      "projectId": "p2",
+      "month": "2026-11",
+      "pct": 80
+    },
+    {
+      "consultantId": "c7",
+      "projectId": "p2",
+      "month": "2026-12",
+      "pct": 60
+    },
+    {
+      "consultantId": "c7",
+      "projectId": "p2",
+      "month": "2027-01",
+      "pct": 40
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p2",
+      "month": "2026-08",
+      "pct": 60
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p2",
+      "month": "2026-09",
+      "pct": 60
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p2",
+      "month": "2026-10",
+      "pct": 60
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p2",
+      "month": "2026-11",
+      "pct": 60
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p2",
+      "month": "2026-12",
+      "pct": 60
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p2",
+      "month": "2027-01",
+      "pct": 60
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p6",
+      "month": "2026-08",
+      "pct": 40
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p6",
+      "month": "2026-09",
+      "pct": 40
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p6",
+      "month": "2026-10",
+      "pct": 40
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p6",
+      "month": "2026-11",
+      "pct": 40
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p6",
+      "month": "2026-12",
+      "pct": 40
+    },
+    {
+      "consultantId": "c8",
+      "projectId": "p6",
+      "month": "2027-01",
+      "pct": 40
+    },
+    {
+      "consultantId": "c9",
+      "projectId": "p5",
+      "month": "2026-08",
+      "pct": 80
+    },
+    {
+      "consultantId": "c9",
+      "projectId": "p5",
+      "month": "2026-09",
+      "pct": 80
+    },
+    {
+      "consultantId": "c9",
+      "projectId": "p5",
+      "month": "2026-10",
+      "pct": 80
+    },
+    {
+      "consultantId": "c9",
+      "projectId": "p5",
+      "month": "2026-11",
+      "pct": 80
+    },
+    {
+      "consultantId": "c9",
+      "projectId": "p5",
+      "month": "2026-12",
+      "pct": 80
+    },
+    {
+      "consultantId": "c9",
+      "projectId": "p5",
+      "month": "2027-01",
+      "pct": 80
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p2",
+      "month": "2026-08",
+      "pct": 20
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p2",
+      "month": "2026-09",
+      "pct": 35
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p2",
+      "month": "2026-10",
+      "pct": 50
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p2",
+      "month": "2026-11",
+      "pct": 50
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p2",
+      "month": "2026-12",
+      "pct": 50
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p2",
+      "month": "2027-01",
+      "pct": 50
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p8",
+      "month": "2026-08",
+      "pct": 15
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p8",
+      "month": "2026-09",
+      "pct": 30
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p8",
+      "month": "2026-10",
+      "pct": 40
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p8",
+      "month": "2026-11",
+      "pct": 40
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p8",
+      "month": "2026-12",
+      "pct": 40
+    },
+    {
+      "consultantId": "c10",
+      "projectId": "p8",
+      "month": "2027-01",
+      "pct": 40
+    },
+    {
+      "consultantId": "c11",
+      "projectId": "p5",
+      "month": "2026-08",
+      "pct": 100
+    },
+    {
+      "consultantId": "c11",
+      "projectId": "p5",
+      "month": "2026-09",
+      "pct": 100
+    },
+    {
+      "consultantId": "c11",
+      "projectId": "p5",
+      "month": "2026-10",
+      "pct": 100
+    },
+    {
+      "consultantId": "c11",
+      "projectId": "p5",
+      "month": "2026-11",
+      "pct": 80
+    },
+    {
+      "consultantId": "c11",
+      "projectId": "p5",
+      "month": "2026-12",
+      "pct": 60
+    },
+    {
+      "consultantId": "c11",
+      "projectId": "p5",
+      "month": "2027-01",
+      "pct": 40
+    },
+    {
+      "consultantId": "c12",
+      "projectId": "p2",
+      "month": "2026-08",
+      "pct": 70
+    },
+    {
+      "consultantId": "c12",
+      "projectId": "p2",
+      "month": "2026-09",
+      "pct": 70
+    },
+    {
+      "consultantId": "c12",
+      "projectId": "p2",
+      "month": "2026-10",
+      "pct": 70
+    },
+    {
+      "consultantId": "c12",
+      "projectId": "p2",
+      "month": "2026-11",
+      "pct": 70
+    },
+    {
+      "consultantId": "c12",
+      "projectId": "p2",
+      "month": "2026-12",
+      "pct": 70
+    },
+    {
+      "consultantId": "c12",
+      "projectId": "p2",
+      "month": "2027-01",
+      "pct": 70
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p5",
+      "month": "2026-08",
+      "pct": 60
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p5",
+      "month": "2026-09",
+      "pct": 60
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p5",
+      "month": "2026-10",
+      "pct": 60
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p5",
+      "month": "2026-11",
+      "pct": 60
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p5",
+      "month": "2026-12",
+      "pct": 60
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p5",
+      "month": "2027-01",
+      "pct": 60
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p7",
+      "month": "2026-08",
+      "pct": 40
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p7",
+      "month": "2026-09",
+      "pct": 40
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p7",
+      "month": "2026-10",
+      "pct": 40
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p7",
+      "month": "2026-11",
+      "pct": 40
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p7",
+      "month": "2026-12",
+      "pct": 40
+    },
+    {
+      "consultantId": "c13",
+      "projectId": "p7",
+      "month": "2027-01",
+      "pct": 40
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p4",
+      "month": "2026-08",
+      "pct": 30
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p4",
+      "month": "2026-09",
+      "pct": 55
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p4",
+      "month": "2026-10",
+      "pct": 80
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p4",
+      "month": "2026-11",
+      "pct": 80
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p4",
+      "month": "2026-12",
+      "pct": 80
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p4",
+      "month": "2027-01",
+      "pct": 80
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p6",
+      "month": "2026-08",
+      "pct": 10
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p6",
+      "month": "2026-09",
+      "pct": 15
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p6",
+      "month": "2026-10",
+      "pct": 20
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p6",
+      "month": "2026-11",
+      "pct": 20
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p6",
+      "month": "2026-12",
+      "pct": 20
+    },
+    {
+      "consultantId": "c14",
+      "projectId": "p6",
+      "month": "2027-01",
+      "pct": 20
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p1",
+      "month": "2026-08",
+      "pct": 60
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p1",
+      "month": "2026-09",
+      "pct": 60
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p1",
+      "month": "2026-10",
+      "pct": 60
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p1",
+      "month": "2026-11",
+      "pct": 50
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p1",
+      "month": "2026-12",
+      "pct": 35
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p1",
+      "month": "2027-01",
+      "pct": 25
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p4",
+      "month": "2026-08",
+      "pct": 50
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p4",
+      "month": "2026-09",
+      "pct": 50
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p4",
+      "month": "2026-10",
+      "pct": 50
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p4",
+      "month": "2026-11",
+      "pct": 40
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p4",
+      "month": "2026-12",
+      "pct": 30
+    },
+    {
+      "consultantId": "c15",
+      "projectId": "p4",
+      "month": "2027-01",
+      "pct": 20
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p2",
+      "month": "2026-08",
+      "pct": 70
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p2",
+      "month": "2026-09",
+      "pct": 70
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p2",
+      "month": "2026-10",
+      "pct": 70
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p2",
+      "month": "2026-11",
+      "pct": 70
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p2",
+      "month": "2026-12",
+      "pct": 70
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p2",
+      "month": "2027-01",
+      "pct": 70
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p7",
+      "month": "2026-08",
+      "pct": 30
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p7",
+      "month": "2026-09",
+      "pct": 30
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p7",
+      "month": "2026-10",
+      "pct": 30
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p7",
+      "month": "2026-11",
+      "pct": 30
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p7",
+      "month": "2026-12",
+      "pct": 30
+    },
+    {
+      "consultantId": "c16",
+      "projectId": "p7",
+      "month": "2027-01",
+      "pct": 30
+    },
+    {
+      "consultantId": "c17",
+      "projectId": "p3",
+      "month": "2026-08",
+      "pct": 100
+    },
+    {
+      "consultantId": "c17",
+      "projectId": "p3",
+      "month": "2026-09",
+      "pct": 100
+    },
+    {
+      "consultantId": "c17",
+      "projectId": "p3",
+      "month": "2026-10",
+      "pct": 100
+    },
+    {
+      "consultantId": "c17",
+      "projectId": "p3",
+      "month": "2026-11",
+      "pct": 100
+    },
+    {
+      "consultantId": "c17",
+      "projectId": "p3",
+      "month": "2026-12",
+      "pct": 100
+    },
+    {
+      "consultantId": "c17",
+      "projectId": "p3",
+      "month": "2027-01",
+      "pct": 100
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p5",
+      "month": "2026-08",
+      "pct": 30
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p5",
+      "month": "2026-09",
+      "pct": 55
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p5",
+      "month": "2026-10",
+      "pct": 80
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p5",
+      "month": "2026-11",
+      "pct": 80
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p5",
+      "month": "2026-12",
+      "pct": 80
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p5",
+      "month": "2027-01",
+      "pct": 80
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p8",
+      "month": "2026-08",
+      "pct": 10
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p8",
+      "month": "2026-09",
+      "pct": 15
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p8",
+      "month": "2026-10",
+      "pct": 20
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p8",
+      "month": "2026-11",
+      "pct": 20
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p8",
+      "month": "2026-12",
+      "pct": 20
+    },
+    {
+      "consultantId": "c18",
+      "projectId": "p8",
+      "month": "2027-01",
+      "pct": 20
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p1",
+      "month": "2026-08",
+      "pct": 50
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p1",
+      "month": "2026-09",
+      "pct": 50
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p1",
+      "month": "2026-10",
+      "pct": 50
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p1",
+      "month": "2026-11",
+      "pct": 40
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p1",
+      "month": "2026-12",
+      "pct": 30
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p1",
+      "month": "2027-01",
+      "pct": 20
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p6",
+      "month": "2026-08",
+      "pct": 30
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p6",
+      "month": "2026-09",
+      "pct": 30
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p6",
+      "month": "2026-10",
+      "pct": 30
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p6",
+      "month": "2026-11",
+      "pct": 25
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p6",
+      "month": "2026-12",
+      "pct": 20
+    },
+    {
+      "consultantId": "c19",
+      "projectId": "p6",
+      "month": "2027-01",
+      "pct": 10
+    },
+    {
+      "consultantId": "c20",
+      "projectId": "p4",
+      "month": "2026-08",
+      "pct": 100
+    },
+    {
+      "consultantId": "c20",
+      "projectId": "p4",
+      "month": "2026-09",
+      "pct": 100
+    },
+    {
+      "consultantId": "c20",
+      "projectId": "p4",
+      "month": "2026-10",
+      "pct": 100
+    },
+    {
+      "consultantId": "c20",
+      "projectId": "p4",
+      "month": "2026-11",
+      "pct": 100
+    },
+    {
+      "consultantId": "c20",
+      "projectId": "p4",
+      "month": "2026-12",
+      "pct": 100
+    },
+    {
+      "consultantId": "c20",
+      "projectId": "p4",
+      "month": "2027-01",
+      "pct": 100
+    },
+    {
+      "consultantId": "c21",
+      "projectId": "p7",
+      "month": "2026-08",
+      "pct": 60
+    },
+    {
+      "consultantId": "c21",
+      "projectId": "p7",
+      "month": "2026-09",
+      "pct": 60
+    },
+    {
+      "consultantId": "c21",
+      "projectId": "p7",
+      "month": "2026-10",
+      "pct": 60
+    },
+    {
+      "consultantId": "c21",
+      "projectId": "p7",
+      "month": "2026-11",
+      "pct": 60
+    },
+    {
+      "consultantId": "c21",
+      "projectId": "p7",
+      "month": "2026-12",
+      "pct": 60
+    },
+    {
+      "consultantId": "c21",
+      "projectId": "p7",
+      "month": "2027-01",
+      "pct": 60
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p2",
+      "month": "2026-08",
+      "pct": 25
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p2",
+      "month": "2026-09",
+      "pct": 40
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p2",
+      "month": "2026-10",
+      "pct": 60
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p2",
+      "month": "2026-11",
+      "pct": 60
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p2",
+      "month": "2026-12",
+      "pct": 60
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p2",
+      "month": "2027-01",
+      "pct": 60
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p8",
+      "month": "2026-08",
+      "pct": 10
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p8",
+      "month": "2026-09",
+      "pct": 20
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p8",
+      "month": "2026-10",
+      "pct": 30
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p8",
+      "month": "2026-11",
+      "pct": 30
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p8",
+      "month": "2026-12",
+      "pct": 30
+    },
+    {
+      "consultantId": "c22",
+      "projectId": "p8",
+      "month": "2027-01",
+      "pct": 30
+    }
+  ]
+}
