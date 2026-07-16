@@ -99,11 +99,6 @@
       "area": "dev"
     },
     {
-      "id": "cmrnuhtp9573",
-      "name": "Luis Rodrigo Fajardo Sondón",
-      "area": "dev"
-    },
-    {
       "id": "cmrnuhtp9658",
       "name": "René Omar Caro Rangel",
       "area": "dev"
@@ -780,12 +775,6 @@
       "projectId": "pmrnuhtpa649",
       "month": "2026-09",
       "pct": 10
-    },
-    {
-      "consultantId": "cmrnuhtp9771",
-      "projectId": "pmrnuhtpa178",
-      "month": "2027-01",
-      "pct": 25
     }
   ]
 }
