@@ -64,6 +64,14 @@
   .cell{height:46px;font-weight:700;color:#12303f;border-left:1px solid #eef2f7;position:relative}
   .cell .mini{font-size:9px;font-weight:600;opacity:.7;display:block;margin-top:-2px}
   .chev{color:var(--muted);font-size:11px;margin-left:6px}
+  .edlink{color:var(--blue);cursor:pointer;font-weight:600}
+  .edlink:hover{text-decoration:underline}
+  .detail-cell{padding:2px 14px 12px 34px;background:#fbfdff;border-bottom:1px solid var(--line)}
+  .detail-tbl{width:100%;border-collapse:collapse;font-size:12px}
+  .detail-tbl th{color:var(--muted);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:6px 4px;text-align:center}
+  .detail-tbl th:first-child{text-align:left}
+  .detail-tbl td{padding:5px 4px;text-align:center;border-top:1px solid var(--line);color:#334155}
+  .detail-tbl td:first-child{text-align:left;font-weight:600}
   .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 14px;font-size:12.5px;cursor:pointer;color:var(--muted);font-weight:600}
   .chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
@@ -373,6 +381,8 @@ function totalFor(cId,month){return state.assignments.filter(function(a){return 
 var consFilter='all';
 function projPasses(pid){if(consFilter==='all')return true;var p=projOf(pid);return !!(p&&p.status===consFilter);}
 function totalForF(cId,month){return state.assignments.filter(function(a){return a.consultantId===cId&&a.month===month&&projPasses(a.projectId);}).reduce(function(s,a){return s+(+a.pct||0);},0);}
+function isGenerico(c){return (c.name||'').toUpperCase().indexOf('GENERICO')>=0;}
+function considered(list){return consFilter==='activo'?list.filter(function(c){return !isGenerico(c);}):list;}
 
 /* ============================ GITHUB SYNC ============================ */
 function b64enc(str){ return btoa(unescape(encodeURIComponent(str))); }
@@ -428,15 +438,23 @@ function normalize(d){
 }
 
 /* ============================ RENDER: CONSULTORES ============================ */
+var expanded={};
+function buildConsDetail(cId,months){
+  var pIds=[]; state.assignments.forEach(function(a){if(a.consultantId===cId&&projPasses(a.projectId)&&pIds.indexOf(a.projectId)<0)pIds.push(a.projectId);});
+  if(!pIds.length) return '<div style="color:var(--muted);font-size:12px;padding:4px 2px">Sin proyectos'+(consFilter==='activo'?' activos':'')+' asignados en el periodo.</div>';
+  var h='<table class="detail-tbl"><thead><tr><th>Proyecto</th>'+months.map(function(m){return '<th>'+monthLabel(m)+'</th>';}).join('')+'</tr></thead><tbody>';
+  pIds.forEach(function(pid){var p=projOf(pid);if(!p)return;h+='<tr><td><span class="pill" style="background:'+p.color+'"></span>'+p.name+' <span class="badge '+p.status+'" style="transform:scale(.75)">'+p.status+'</span></td>'+months.map(function(m){var a=state.assignments.filter(function(x){return x.consultantId===cId&&x.projectId===pid&&x.month===m;})[0];return '<td>'+(a&&a.pct?a.pct+'%':'—')+'</td>';}).join('')+'</tr>';});
+  return h+'</tbody></table>';
+}
 function renderAlloc(){
   var months=monthList(state.config.startMonth);
   document.getElementById('periodLabel').textContent=monthLabel(months[0])+' — '+monthLabel(months[5]);
   var totalC=state.consultants.length, util=[], bench=0;
-  state.consultants.forEach(function(c){
+  considered(state.consultants).forEach(function(c){
     util.push(months.reduce(function(s,m){return s+totalForF(c.id,m);},0)/6);
     if(months.some(function(m){return totalForF(c.id,m)===0;})) bench++;
   });
-  var avgUtil=Math.round(util.reduce(function(s,v){return s+v;},0)/(totalC||1));
+  var avgUtil=Math.round(util.reduce(function(s,v){return s+v;},0)/(util.length||1));
   var act=state.projects.filter(function(p){return p.status==='activo';}).length;
   var pros=state.projects.filter(function(p){return p.status==='prospecto';}).length;
   document.getElementById('kpis').innerHTML=
@@ -448,21 +466,23 @@ function renderAlloc(){
   var body='<tbody>';
   AREAS.forEach(function(a){
     var list=state.consultants.filter(function(c){return c.area===a.id;});
-    var gUtil=list.length?Math.round(list.reduce(function(s,c){return s+months.reduce(function(ss,m){return ss+totalForF(c.id,m);},0)/6;},0)/list.length):0;
+    var glist=considered(list);
+    var gUtil=glist.length?Math.round(glist.reduce(function(s,c){return s+months.reduce(function(ss,m){return ss+totalForF(c.id,m);},0)/6;},0)/glist.length):0;
     body+='<tr class="area-row"><td colspan="7"><span class="abadge" style="background:'+a.color+'"></span>'+a.name+' · '+list.length+(list.length?' · Utilización prom. '+gUtil+'%':'')+'</td></tr>';
     if(!list.length){ body+='<tr><td class="name-col" style="color:var(--muted);font-weight:400">Sin consultores en esta área</td>'+months.map(function(){return '<td class="cell" style="background:#fafbfc;color:#cbd5e1">—</td>';}).join('')+'</tr>'; return; }
     list.forEach(function(c){
-      body+='<tr class="crow" data-c="'+c.id+'"><td class="name-col">'+c.name+'<small>'+a.name+'<span class="chev">▸ ver proyectos</span></small></td>';
+      body+='<tr class="crow" data-c="'+c.id+'"><td class="name-col">'+c.name+'<small>'+a.name+' <span class="chev">'+(expanded[c.id]?'▾ ocultar':'▸ ver')+' proyectos</span> · <a class="edlink" data-editc="'+c.id+'">editar</a></small></td>';
       months.forEach(function(m){
         var tot=totalForF(c.id,m),col=cellColor(tot);
         var n=state.assignments.filter(function(x){return x.consultantId===c.id&&x.month===m&&x.pct>0&&projPasses(x.projectId);}).length;
         body+='<td class="cell" style="background:'+col.bg+';color:'+col.fg+'">'+tot+'%<span class="mini">'+(tot<=0?'disp.':n+' proy.')+'</span></td>';
       });
       body+='</tr>';
+      body+='<tr class="detail-row" data-for="'+c.id+'"'+(expanded[c.id]?'':' style="display:none"')+'><td colspan="7" class="detail-cell">'+buildConsDetail(c.id,months)+'</td></tr>';
     });
   });
   t.innerHTML=head+body+'</tbody>';
-  Array.prototype.forEach.call(t.querySelectorAll('.crow'),function(r){r.addEventListener('click',function(){openConsultant(r.getAttribute('data-c'));});});
+  Array.prototype.forEach.call(t.querySelectorAll('.crow'),function(r){r.addEventListener('click',function(e){var ed=e.target.closest&&e.target.closest('[data-editc]');if(ed){openConsultant(ed.getAttribute('data-editc'));return;}var cid=r.getAttribute('data-c');expanded[cid]=!expanded[cid];renderAlloc();});});
 }
 function kpi(label,val,sub,cls){return '<div class="kpi '+cls+'"><div class="k-label">'+label+'</div><div class="k-val">'+val+'</div><div class="k-sub">'+sub+'</div></div>';}
 
