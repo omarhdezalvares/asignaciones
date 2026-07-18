@@ -137,9 +137,28 @@
   .statusline.info{background:#eaf2fb;color:#215a92}
   @media(max-width:900px){.htitle{display:none}}
   @media(max-width:720px){.brand .txt span{display:none}.period-pick span{display:none}}
+  #authScreen{position:fixed;inset:0;background:linear-gradient(135deg,#12345e,#215a92);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+  .auth-card{background:#fff;border-radius:16px;padding:26px 24px;width:100%;max-width:380px;box-shadow:0 24px 70px rgba(0,0,0,.4)}
+  .auth-card h2{margin:2px 0 2px;color:var(--navy);font-size:19px}
+  .auth-card p{color:var(--muted);font-size:12.5px;margin:0 0 16px}
+  .auth-card input{width:100%;margin-bottom:10px}
+  .auth-card .btn{width:100%;justify-content:center;display:flex}
+  .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .auth-logo b{color:var(--navy);font-weight:800;letter-spacing:.5px;font-size:16px}
+  .auth-err{color:#b3261e;font-size:12.5px;margin-top:8px;min-height:16px}
 </style>
 </head>
 <body>
+
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg width="34" height="34" viewBox="0 0 100 100"><g stroke-linecap="round" fill="none" stroke-width="13"><path d="M28 26 L72 74" stroke="#2b8fd0"/><path d="M72 26 L28 74" stroke="#39bec9"/></g><circle cx="24" cy="20" r="7" fill="#f4c430"/><circle cx="24" cy="80" r="7" fill="#5cb85c"/><circle cx="78" cy="80" r="7" fill="#e8722a"/><circle cx="78" cy="20" r="7" fill="#2b8fd0"/></svg>
+      <b>GRUPO STAFF</b>
+    </div>
+    <div id="authBody"><p style="color:#64748b;font-size:13px">Cargando…</p></div>
+  </div>
+</div>
 
 <header>
   <div class="brand">
@@ -286,6 +305,19 @@
         <button class="btn danger" id="resetBtn2">↺ Restablecer a datos de ejemplo</button>
       </div>
     </div></div>
+
+    <div class="card"><div style="padding:16px 18px">
+      <h2 style="margin:0 0 6px;color:var(--navy);font-size:15px">Usuarios (acceso a la app)</h2>
+      <div class="hint">Cualquiera con usuario y contraseña puede entrar y descifrar los datos (sin roles). Las contraseñas <b>no se pueden recuperar</b> si se olvidan. Al agregar/quitar usuarios se publica el cambio cifrado.</div>
+      <div class="form-row">
+        <div class="fld"><label>Usuario</label><input id="nuUser" placeholder="usuario"></div>
+        <div class="fld"><label>Contraseña</label><input id="nuPass" type="password" placeholder="mín. 6"></div>
+        <button class="btn primary" id="addUserBtn">+ Agregar usuario</button>
+        <div class="spacer" style="flex:1"></div>
+        <button class="btn danger" id="logoutBtn">Cerrar sesión</button>
+      </div>
+      <div class="grid-wrap"><table class="list-table" id="usersList"></table></div>
+    </div></div>
   </section>
 
   <div class="foot">Grupo Staff · Business Process &amp; IT Consulting — Herramienta interna de proyección de capacidad</div>
@@ -310,7 +342,7 @@ var AREAS = [
   {id:'pm',  name:'Project Manager',    color:'#8e6fd0', tag:'pm'}
 ];
 var PALETTE = ['#2b8fd0','#39bec9','#5cb85c','#e8722a','#f4c430','#8e6fd0','#d0567f','#1a9c8f','#c2884a','#5a7fd0'];
-var STORAGE_KEY = 'gstaff_alloc_v1';
+var STORAGE_KEY = 'gstaff_vault_v1';
 var CFG_KEY = 'gstaff_gh_cfg';
 var TOKEN_KEY = 'gstaff_gh_token';
 var DATA_FILE = 'data.json';
@@ -374,9 +406,7 @@ function areaOf(id){return AREAS.filter(function(a){return a.id===id;})[0]||AREA
 function projOf(id){return state.projects.filter(function(p){return p.id===id;})[0];}
 function consOf(id){return state.consultants.filter(function(c){return c.id===id;})[0];}
 function cellColor(pct){if(pct<=0)return{bg:'#eceff3',fg:'#94a3b8'};if(pct>100)return{bg:'#f6c6bf',fg:'#a5342a'};if(pct>=70)return{bg:'#c9ebc6',fg:'#2e7d32'};return{bg:'#fde3c4',fg:'#b06a1a'};}
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); schedulePublish(); }
-function saveLocalOnly(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-function loadLocal(){ try{var s=localStorage.getItem(STORAGE_KEY);if(s)return JSON.parse(s);}catch(e){} return seed(); }
+function save(){ scheduleVaultSave(); }
 function totalFor(cId,month){return state.assignments.filter(function(a){return a.consultantId===cId&&a.month===month;}).reduce(function(s,a){return s+(+a.pct||0);},0);}
 var consFilter='all';
 function projPasses(pid){if(consFilter==='all')return true;var p=projOf(pid);return !!(p&&p.status===consFilter);}
@@ -408,12 +438,13 @@ function authHeaders(){ return {'Authorization':'Bearer '+ghToken(),'Accept':'ap
 function publishNow(){
   var t=ghToken();
   if(!t){ setStatus('info','Sin token: no se puede publicar. Configúralo arriba.'); return; }
+  if(!lastVaultJson){ setStatus('info','Aún no hay datos cifrados para publicar.'); return; }
   setStatus('pub','Publicando en GitHub…');
   fetch(apiUrl()+'?ref='+encodeURIComponent(ghCfg.branch)+'&t='+Date.now(),{headers:authHeaders(),cache:'no-store'})
     .then(function(r){ return r.ok? r.json(): null; })
     .then(function(meta){
       var body={ message:'Actualiza asignaciones — '+new Date().toLocaleString('es-MX'),
-                 content:b64enc(JSON.stringify(state,null,2)), branch:ghCfg.branch };
+                 content:b64enc(lastVaultJson), branch:ghCfg.branch };
       if(meta && meta.sha) body.sha=meta.sha;
       return fetch(apiUrl(),{method:'PUT',headers:authHeaders(),body:JSON.stringify(body)});
     })
@@ -423,18 +454,107 @@ function publishNow(){
 }
 function reloadFromGitHub(silent){
   return fetch(DATA_FILE+'?t='+Date.now(),{cache:'no-store'})
-    .then(function(r){ if(!r.ok) throw new Error('no data.json'); return r.json(); })
-    .then(function(remote){
-      if(remote && remote.consultants){ state=normalize(remote); saveLocalOnly(); document.getElementById('startMonth').value=state.config.startMonth; renderAll();
-        if(!silent) setStatus(ghToken()?'ok':'read', ghToken()?'Datos cargados desde GitHub.':'Mostrando datos publicados (solo lectura).'); }
+    .then(function(r){ if(!r.ok) throw new Error('no data.json'); return r.text(); })
+    .then(function(txt){
+      var j=JSON.parse(txt);
+      if(j && j.protected){
+        vaultUsers=j.users||vaultUsers; vaultEnc=j.enc; lastVaultJson=txt; localStorage.setItem(STORAGE_KEY,txt);
+        if(DATA_KEY){ return aesDec(DATA_KEY,vaultEnc.iv,vaultEnc.ct).then(function(pt){ state=normalize(JSON.parse(td(pt))); document.getElementById('startMonth').value=state.config.startMonth; renderAll(); if(!silent) setStatus('ok','Datos actualizados desde GitHub.'); }); }
+      } else if(j && j.consultants){ initialPayload=normalize(j); if(!silent) setStatus('info','El data.json en línea aún está sin cifrar.'); }
     })
-    .catch(function(){ if(!silent) setStatus('info','No se encontró data.json en línea; mostrando datos locales.'); });
+    .catch(function(){ if(!silent) setStatus('info','No se pudo recargar desde GitHub.'); });
 }
 function normalize(d){
   d.config=d.config||{startMonth:'2026-08'};
   (d.projects||[]).forEach(function(p,i){ if(!p.color) p.color=PALETTE[i%PALETTE.length]; });
   d.assignments=d.assignments||[]; d.consultants=d.consultants||[]; d.projects=d.projects||[];
   return d;
+}
+
+/* ============================ SEGURIDAD / VAULT (cifrado) ============================ */
+var dekRaw=null, DATA_KEY=null, vaultUsers=[], vaultEnc=null, lastVaultJson=null, initialPayload=null;
+function te(s){return new TextEncoder().encode(s);}
+function td(b){return new TextDecoder().decode(b);}
+function ab2b64(buf){var b=new Uint8Array(buf),s='';for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s);}
+function b642ab(s){var bin=atob(s),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u;}
+function pbkdf2Key(password,salt){return crypto.subtle.importKey('raw',te(password),'PBKDF2',false,['deriveKey']).then(function(base){return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);});}
+function importDek(raw){return crypto.subtle.importKey('raw',raw,{name:'AES-GCM'},false,['encrypt','decrypt']);}
+function aesEnc(key,bytes){var iv=crypto.getRandomValues(new Uint8Array(12));return crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,bytes).then(function(ct){return {iv:ab2b64(iv),ct:ab2b64(ct)};});}
+function aesDec(key,ivB64,ctB64){return crypto.subtle.decrypt({name:'AES-GCM',iv:b642ab(ivB64)},key,b642ab(ctB64)).then(function(pt){return new Uint8Array(pt);});}
+function buildVaultObj(){return aesEnc(DATA_KEY,te(JSON.stringify(state))).then(function(e){vaultEnc=e;return {protected:true,v:1,users:vaultUsers,enc:e};});}
+var vaultTimer=null;
+function scheduleVaultSave(){ if(!DATA_KEY)return; setStatus('dirty','Cambios pendientes de guardar…'); clearTimeout(vaultTimer); vaultTimer=setTimeout(persistVault,800); }
+function persistVault(){ if(!DATA_KEY)return Promise.resolve(); return buildVaultObj().then(function(v){lastVaultJson=JSON.stringify(v);try{localStorage.setItem(STORAGE_KEY,lastVaultJson);}catch(e){} schedulePublish();}); }
+function publishVaultNow(){ if(!DATA_KEY){setStatus('info','Inicia sesión primero.');return;} buildVaultObj().then(function(v){lastVaultJson=JSON.stringify(v);try{localStorage.setItem(STORAGE_KEY,lastVaultJson);}catch(e){} publishNow();}); }
+function setupFirstUser(username,password){
+  dekRaw=crypto.getRandomValues(new Uint8Array(32));
+  var salt=crypto.getRandomValues(new Uint8Array(16));
+  return pbkdf2Key(password,salt).then(function(kek){return aesEnc(kek,dekRaw);}).then(function(w){
+    vaultUsers=[{u:username,salt:ab2b64(salt),iv:w.iv,wrapped:w.ct}];
+    return importDek(dekRaw);
+  }).then(function(k){DATA_KEY=k; state=normalize(initialPayload||seed()); return persistVault();});
+}
+function loginUser(username,password){
+  var rec=null; for(var i=0;i<vaultUsers.length;i++){if((vaultUsers[i].u||'').toLowerCase()===username.toLowerCase()){rec=vaultUsers[i];break;}}
+  if(!rec) return Promise.reject(new Error('Usuario o contraseña inválidos'));
+  return pbkdf2Key(password,b642ab(rec.salt)).then(function(kek){return aesDec(kek,rec.iv,rec.wrapped);}).then(function(raw){
+    dekRaw=raw; return importDek(raw);
+  }).then(function(k){DATA_KEY=k; return aesDec(DATA_KEY,vaultEnc.iv,vaultEnc.ct);}).then(function(pt){
+    state=normalize(JSON.parse(td(pt))); lastVaultJson=JSON.stringify({protected:true,v:1,users:vaultUsers,enc:vaultEnc});
+  }).catch(function(){throw new Error('Usuario o contraseña inválidos');});
+}
+function addUser(username,password){
+  if(!DATA_KEY) return Promise.reject(new Error('Inicia sesión primero'));
+  for(var i=0;i<vaultUsers.length;i++){if((vaultUsers[i].u||'').toLowerCase()===username.toLowerCase())return Promise.reject(new Error('Ese usuario ya existe'));}
+  var salt=crypto.getRandomValues(new Uint8Array(16));
+  return pbkdf2Key(password,salt).then(function(kek){return aesEnc(kek,dekRaw);}).then(function(w){
+    vaultUsers.push({u:username,salt:ab2b64(salt),iv:w.iv,wrapped:w.ct}); return persistVault();
+  });
+}
+function removeUser(username){ if(vaultUsers.length<=1) return Promise.reject(new Error('Debe quedar al menos un usuario')); vaultUsers=vaultUsers.filter(function(u){return u.u!==username;}); return persistVault(); }
+var SETUP_HTML='<h2>Proteger la aplicación</h2><p>Crea el primer usuario administrador. Los datos quedarán cifrados: nadie podrá verlos sin una cuenta.</p>'+
+  '<input id="auUser" placeholder="Usuario" autocomplete="username">'+
+  '<input id="auPass" type="password" placeholder="Contraseña (mín. 6)" autocomplete="new-password">'+
+  '<input id="auPass2" type="password" placeholder="Repite la contraseña" autocomplete="new-password">'+
+  '<button class="btn navy" id="auGo">Crear y proteger</button><div class="auth-err" id="auErr"></div>';
+var LOGIN_HTML='<h2>Iniciar sesión</h2><p>Acceso restringido · Proyección de Asignación de Consultores.</p>'+
+  '<input id="auUser" placeholder="Usuario" autocomplete="username">'+
+  '<input id="auPass" type="password" placeholder="Contraseña" autocomplete="current-password">'+
+  '<button class="btn navy" id="auGo">Entrar</button><div class="auth-err" id="auErr"></div>';
+function showAuth(mode){ document.getElementById('authBody').innerHTML=(mode==='setup')?SETUP_HTML:LOGIN_HTML; document.getElementById('authScreen').style.display='flex'; bindAuth(mode); document.getElementById('auUser').focus(); }
+function bindAuth(mode){
+  var go=document.getElementById('auGo');
+  function submit(){
+    var u=(document.getElementById('auUser').value||'').trim(), p=document.getElementById('auPass').value||'', err=document.getElementById('auErr');
+    if(!u||!p){err.textContent='Ingresa usuario y contraseña.';return;}
+    if(mode==='setup'){ var p2=document.getElementById('auPass2').value||''; if(p.length<6){err.textContent='La contraseña debe tener al menos 6 caracteres.';return;} if(p!==p2){err.textContent='Las contraseñas no coinciden.';return;} }
+    go.disabled=true; err.textContent='Procesando…';
+    var pr=(mode==='setup')?setupFirstUser(u,p):loginUser(u,p);
+    pr.then(onAuthed).catch(function(e){err.textContent=(e&&e.message)?e.message:(''+e); go.disabled=false;});
+  }
+  go.addEventListener('click',submit);
+  ['auPass','auPass2'].forEach(function(id){var el=document.getElementById(id); if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter')submit();});});
+}
+function onAuthed(){
+  document.getElementById('authScreen').style.display='none';
+  fillGhForm();
+  document.getElementById('startMonth').value=state.config.startMonth;
+  renderAll();
+  if(vaultUsers.length===1 && !ghToken()) setStatus('info','Datos cifrados en este navegador. Ve a Configuración, pon el token y pulsa “Publicar ahora” para guardar cifrado en GitHub.');
+  else setStatus(ghToken()?'ok':'read', ghToken()?'Sesión iniciada. Los cambios se publican cifrados.':'Sesión iniciada. Configura el token para publicar.');
+}
+function bootstrapAuth(){
+  var cachedVault=null; try{var c=localStorage.getItem(STORAGE_KEY); if(c)cachedVault=JSON.parse(c);}catch(e){}
+  fetch(DATA_FILE+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():null;}).then(function(txt){
+    var j=null; if(txt){try{j=JSON.parse(txt);}catch(e){}}
+    if(!j && cachedVault) j=cachedVault;
+    if(j && j.protected){ vaultUsers=j.users||[]; vaultEnc=j.enc; showAuth(vaultUsers.length?'login':'setup'); }
+    else if(j && j.consultants){ initialPayload=normalize(j); showAuth('setup'); }
+    else { initialPayload=seed(); showAuth('setup'); }
+  }).catch(function(){
+    if(cachedVault && cachedVault.protected){ vaultUsers=cachedVault.users||[]; vaultEnc=cachedVault.enc; showAuth(vaultUsers.length?'login':'setup'); }
+    else { initialPayload=seed(); showAuth('setup'); }
+  });
 }
 
 /* ============================ RENDER: CONSULTORES ============================ */
@@ -691,24 +811,25 @@ document.getElementById('ghSave').addEventListener('click',function(){
   if(tk) localStorage.setItem(TOKEN_KEY,tk);
   setStatus(ghToken()?'ok':'info', ghToken()?'Configuración guardada. Ya puedes publicar cambios.':'Configuración guardada (sin token: solo lectura).');
 });
-document.getElementById('ghPublish').addEventListener('click',function(){var tk=document.getElementById('ghToken').value.trim();if(tk)localStorage.setItem(TOKEN_KEY,tk);publishNow();});
+document.getElementById('ghPublish').addEventListener('click',function(){var tk=document.getElementById('ghToken').value.trim();if(tk)localStorage.setItem(TOKEN_KEY,tk);publishVaultNow();});
 document.getElementById('ghReload').addEventListener('click',function(){setStatus('info','Recargando desde GitHub…');reloadFromGitHub(false);});
 document.getElementById('ghClear').addEventListener('click',function(){localStorage.removeItem(TOKEN_KEY);document.getElementById('ghToken').value='';setStatus('info','Token borrado de este navegador. Modo solo lectura.');});
 
+/* ---- Usuarios ---- */
+function renderUsers(){var el=document.getElementById('usersList');if(!el)return;el.innerHTML='<thead><tr><th>Usuario</th><th style="width:90px"></th></tr></thead><tbody>'+vaultUsers.map(function(u,i){return '<tr><td>'+esc(u.u)+'</td><td>'+(vaultUsers.length>1?'<button class="btn danger sm" data-deluser="'+i+'">Quitar</button>':'<span style="color:var(--muted);font-size:11px">único</span>')+'</td></tr>';}).join('')+'</tbody>';}
+document.getElementById('addUserBtn').addEventListener('click',function(){var u=(document.getElementById('nuUser').value||'').trim(),p=document.getElementById('nuPass').value||'';if(!u||!p){alert('Usuario y contraseña requeridos.');return;}if(p.length<6){alert('La contraseña debe tener al menos 6 caracteres.');return;}addUser(u,p).then(function(){document.getElementById('nuUser').value='';document.getElementById('nuPass').value='';renderUsers();setStatus('ok','Usuario agregado'+(ghToken()?' · publicando…':'.'));}).catch(function(e){alert((e&&e.message)?e.message:(''+e));});});
+document.getElementById('usersList').addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-deluser]'):null;if(!b)return;var i=+b.getAttribute('data-deluser');var u=vaultUsers[i];if(!u)return;if(vaultUsers.length<=1){alert('Debe quedar al menos un usuario.');return;}if(confirm('¿Quitar al usuario '+u.u+'?')){removeUser(u.u).then(function(){renderUsers();setStatus('ok','Usuario eliminado.');}).catch(function(er){alert((er&&er.message)?er.message:(''+er));});}});
+document.getElementById('logoutBtn').addEventListener('click',function(){if(confirm('¿Cerrar sesión?')){location.reload();}});
+
 /* ============================ NAV & INIT ============================ */
-Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});t.classList.add('active');var v=t.getAttribute('data-view');document.getElementById('view-'+v).classList.add('active');if(v==='editor')renderEditor();if(v==='config'){fillGhForm();document.getElementById('startMonth2').value=state.config.startMonth;}});});
+Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});t.classList.add('active');var v=t.getAttribute('data-view');document.getElementById('view-'+v).classList.add('active');if(v==='editor')renderEditor();if(v==='config'){fillGhForm();renderUsers();document.getElementById('startMonth2').value=state.config.startMonth;}});});
 document.getElementById('startMonth').addEventListener('change',function(){state.config.startMonth=this.value;var s2=document.getElementById('startMonth2');if(s2)s2.value=this.value;save();renderAll();});
 document.getElementById('startMonth2').addEventListener('change',function(){state.config.startMonth=this.value;document.getElementById('startMonth').value=this.value;save();renderAll();});
 document.getElementById('resetBtn2').addEventListener('click',function(){document.getElementById('resetBtn').click();});
 function renderAll(){renderAlloc();renderProjects();if(document.getElementById('view-editor').classList.contains('active'))renderEditor();}
 
-// Arranque: local primero (rápido), luego intenta el data.json compartido.
-state=normalize(loadLocal());
-document.getElementById('startMonth').value=state.config.startMonth;
-fillGhForm();
-setStatus(ghToken()?'ok':'read', ghToken()?'Modo edición: los cambios se publican en GitHub.':'Cargando datos publicados…');
-renderAll();
-reloadFromGitHub(true).then(function(){ if(!ghToken()) setStatus('read','Mostrando datos publicados (solo lectura). Configura un token para editar.'); });
+// Arranque: pantalla de acceso; la app se carga tras autenticar y descifrar.
+bootstrapAuth();
 </script>
 </body>
 </html>
