@@ -66,12 +66,10 @@
   .chev{color:var(--muted);font-size:11px;margin-left:6px}
   .edlink{color:var(--blue);cursor:pointer;font-weight:600}
   .edlink:hover{text-decoration:underline}
-  .detail-cell{padding:2px 14px 12px 34px;background:#fbfdff;border-bottom:1px solid var(--line)}
-  .detail-tbl{width:100%;border-collapse:collapse;font-size:12px}
-  .detail-tbl th{color:var(--muted);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:6px 4px;text-align:center}
-  .detail-tbl th:first-child{text-align:left}
-  .detail-tbl td{padding:5px 4px;text-align:center;border-top:1px solid var(--line);color:#334155}
-  .detail-tbl td:first-child{text-align:left;font-weight:600}
+  .detail-row td{background:#fbfdff;border-bottom:1px solid var(--line);font-size:12px;color:#334155}
+  .detail-row .name-col{padding-left:34px;font-weight:400;background:#fbfdff}
+  .detail-row .mval{padding:6px 8px;border-left:1px solid #eef2f7}
+  .detail-empty td{text-align:left;color:var(--muted);font-weight:400}
   .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 14px;font-size:12.5px;cursor:pointer;color:var(--muted);font-weight:600}
   .chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
@@ -578,10 +576,14 @@ function bootstrapAuth(){
 var expanded={};
 function buildConsDetail(cId,months){
   var pIds=[]; state.assignments.forEach(function(a){if(a.consultantId===cId&&projPasses(a.projectId)&&pIds.indexOf(a.projectId)<0)pIds.push(a.projectId);});
-  if(!pIds.length) return '<div style="color:var(--muted);font-size:12px;padding:4px 2px">Sin proyectos'+(consFilter==='activo'?' activos':'')+' asignados en el periodo.</div>';
-  var h='<table class="detail-tbl"><thead><tr><th>Proyecto</th>'+months.map(function(m){return '<th>'+monthLabel(m)+'</th>';}).join('')+'</tr></thead><tbody>';
-  pIds.forEach(function(pid){var p=projOf(pid);if(!p)return;h+='<tr><td><span class="pill" style="background:'+p.color+'"></span>'+p.name+' <span class="badge '+p.status+'" style="transform:scale(.75)">'+p.status+'</span></td>'+months.map(function(m){var a=state.assignments.filter(function(x){return x.consultantId===cId&&x.projectId===pid&&x.month===m;})[0];return '<td>'+(a&&a.pct?a.pct+'%':'—')+'</td>';}).join('')+'</tr>';});
-  return h+'</tbody></table>';
+  if(!pIds.length) return '<tr class="detail-row detail-empty" data-for="'+cId+'"><td class="name-col" colspan="'+(months.length+1)+'">Sin proyectos'+(consFilter==='activo'?' activos':'')+' asignados en el periodo.</td></tr>';
+  var rows='';
+  pIds.forEach(function(pid){
+    var p=projOf(pid); if(!p) return;
+    rows+='<tr class="detail-row" data-for="'+cId+'"><td class="name-col"><span class="pill" style="background:'+p.color+'"></span>'+p.name+' <span class="badge '+p.status+'" style="transform:scale(.75)">'+p.status+'</span></td>'+
+      months.map(function(m){var a=state.assignments.filter(function(x){return x.consultantId===cId&&x.projectId===pid&&x.month===m;})[0];return '<td class="mval">'+(a&&a.pct?a.pct+'%':'—')+'</td>';}).join('')+'</tr>';
+  });
+  return rows;
 }
 function renderAlloc(){
   var months=monthList(state.config.startMonth);
@@ -619,7 +621,7 @@ function renderAlloc(){
         body+='<td class="cell" style="background:'+col.bg+';color:'+col.fg+'">'+tot+'%<span class="mini">'+(tot<=0?'disp.':n+' proy.')+'</span></td>';
       });
       body+='</tr>';
-      body+='<tr class="detail-row" data-for="'+c.id+'"'+(expanded[c.id]?'':' style="display:none"')+'><td colspan="7" class="detail-cell">'+buildConsDetail(c.id,months)+'</td></tr>';
+      if(expanded[c.id]) body+=buildConsDetail(c.id,months);
     });
   });
   t.innerHTML=head+body+'</tbody>';
