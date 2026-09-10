@@ -588,7 +588,11 @@ function renderAlloc(){
   var head='<thead><tr><th class="name-col">Consultor</th>'+months.map(function(m){return '<th>'+monthLabel(m)+'</th>';}).join('')+'</tr></thead>';
   var body='<tbody>';
   AREAS.forEach(function(a){
-    var list=state.consultants.filter(function(c){return c.area===a.id;});
+    var list=state.consultants.filter(function(c){return c.area===a.id;}).sort(function(x,y){
+      var gx=/generico/i.test(x.name)?1:0, gy=/generico/i.test(y.name)?1:0;
+      if(gx!==gy) return gx-gy;
+      return x.name.localeCompare(y.name,'es',{sensitivity:'base'});
+    });
     var glist=considered(list);
     var gUtil=glist.length?Math.round(glist.reduce(function(s,c){return s+months.reduce(function(ss,m){return ss+totalForF(c.id,m);},0)/6;},0)/glist.length):0;
     body+='<tr class="area-row"><td colspan="7"><span class="abadge" style="background:'+a.color+'"></span>'+a.name+' · '+list.length+(list.length?' · Utilización prom. '+gUtil+'%':'')+'</td></tr>';
