@@ -83,6 +83,7 @@
   .badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
   .badge.activo{background:#e4f6e6;color:#2e7d32}
   .badge.prospecto{background:#fdeede;color:#c25a12}
+  .badge.cerrado{background:#eceff3;color:#5a6472}
   .pcard .prow{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;border-top:1px dashed var(--line)}
   .pcard .prow span:last-child{font-weight:700;color:var(--navy)}
   .pgrouphdr{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:8px 0 1px;padding-top:6px;border-top:1px dashed var(--line);display:flex;align-items:center;justify-content:space-between}
@@ -222,6 +223,7 @@
           <span class="chip active" data-f="todos">Todos</span>
           <span class="chip" data-f="activo">Activos</span>
           <span class="chip" data-f="prospecto">Prospectos</span>
+          <span class="chip" data-f="cerrado">Cerrados</span>
         </div>
       </div>
       <div style="padding:18px"><div class="proj-grid" id="projGrid"></div></div>
@@ -267,7 +269,7 @@
       <div class="form-row">
         <div class="fld"><label>Proyecto</label><input id="npName" placeholder="Nombre del proyecto" style="min-width:220px"></div>
         <div class="fld"><label>Cliente</label><input id="npClient" placeholder="Cliente"></div>
-        <div class="fld"><label>Estatus</label><select id="npStatus"><option value="activo">Activo</option><option value="prospecto">Prospecto</option></select></div>
+        <div class="fld"><label>Estatus</label><select id="npStatus"><option value="activo">Activo</option><option value="prospecto">Prospecto</option><option value="cerrado">Cerrado</option></select></div>
         <button class="btn primary" id="addProject">+ Agregar proyecto</button>
       </div>
       <div class="grid-wrap"><table class="list-table" id="projList"></table></div>
@@ -402,6 +404,7 @@ function seed(){
 var MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 function monthList(start){var p=start.split('-');var y=+p[0],m=+p[1]-1,out=[];for(var i=0;i<6;i++){var yy=y+Math.floor((m+i)/12),mm=(m+i)%12;out.push(yy+'-'+String(mm+1).padStart(2,'0'));}return out;}
 function monthLabel(ym){var p=ym.split('-');return MES[+p[1]-1]+" '"+p[0].slice(2);}
+function monthIdx(ym){var p=ym.split('-');return (+p[0])*12+(+p[1]-1);}
 function areaOf(id){return AREAS.filter(function(a){return a.id===id;})[0]||AREAS[2];}
 function projOf(id){return state.projects.filter(function(p){return p.id===id;})[0];}
 function consOf(id){return state.consultants.filter(function(c){return c.id===id;})[0];}
@@ -632,7 +635,8 @@ document.getElementById('mBody').addEventListener('input',function(e){var el=e.t
 document.getElementById('mBody').addEventListener('click',function(e){var el=e.target;if(el.getAttribute('data-cdel')){var p=el.getAttribute('data-p');if(confirm('¿Quitar este proyecto del consultor?')){state.assignments=state.assignments.filter(function(x){return !(x.consultantId===mCid&&x.projectId===p);});save();renderConsEditor(mCid);renderAlloc();}}if(el.id==='mAddBtn'){var pid=document.getElementById('mAddSel').value;if(!pid)return;var pct=parseInt(document.getElementById('mAddPct').value,10);if(isNaN(pct))pct=0;var months=monthList(state.config.startMonth);if(pct>0){months.forEach(function(m){state.assignments.push({consultantId:mCid,projectId:pid,month:m,pct:pct});});}else{state.assignments.push({consultantId:mCid,projectId:pid,month:months[0],pct:0});}save();renderConsEditor(mCid);renderAlloc();}});
 
 /* ============================ RENDER: PROYECTOS ============================ */
-var projFilter='todos';
+var PROJ_STATUSES=['activo','prospecto','cerrado'];
+var projFilter=PROJ_STATUSES.slice();
 function renderProjects(){
   var act=state.projects.filter(function(p){return p.status==='activo';}).length;
   var pros=state.projects.filter(function(p){return p.status==='prospecto';}).length;
@@ -641,17 +645,18 @@ function renderProjects(){
     kpi('Prospectos',pros,'en pipeline','k-yellow')+
     kpi('Personas asignadas',new Set(state.assignments.map(function(a){return a.consultantId;})).size,'con al menos un proyecto','k-blue');
   var grid=document.getElementById('projGrid'); grid.innerHTML='';
-  state.projects.filter(function(p){return projFilter==='todos'||p.status===projFilter;}).forEach(function(p){
-    var agg={}; state.assignments.filter(function(a){return a.projectId===p.id && (+a.pct)>0;}).forEach(function(a){
+  var sp=state.config.startMonth.split('-'),nowIdx=(+sp[0])*12+(+sp[1]-1);
+  state.projects.filter(function(p){return projFilter.indexOf(p.status)>=0;}).forEach(function(p){
+    var fromStart=state.assignments.filter(function(a){return a.projectId===p.id && (+a.pct)>0 && monthIdx(a.month)>=nowIdx;});
+    var agg={}; fromStart.forEach(function(a){
       var g=agg[a.consultantId]||(agg[a.consultantId]={sum:0,mset:{}});
       g.sum+=(+a.pct||0); g.mset[a.month]=1;
     });
-    var pmi=state.assignments.filter(function(a){return a.projectId===p.id&&(+a.pct)>0;}).map(function(a){var q=a.month.split('-');return (+q[0])*12+(+q[1]-1);});
-    var projRef=pmi.length?(Math.max.apply(null,pmi)-Math.min.apply(null,pmi)+1):1;
+    var pmi=fromStart.map(function(a){return monthIdx(a.month);});
+    var projRef=pmi.length?(Math.max.apply(null,pmi)-nowIdx+1):1;
     var people=Object.keys(agg).map(function(cid){return {c:consOf(cid),avg:Math.round(agg[cid].sum/projRef)};}).filter(function(x){return x.c;}).sort(function(a,b){return b.avg-a.avg;});
     var fteAvg=(people.reduce(function(s,x){return s+x.avg;},0)/100).toFixed(1);
-    var pidx=state.assignments.filter(function(a){return a.projectId===p.id&&(+a.pct)>0;}).map(function(a){var q=a.month.split('-');return (+q[0])*12+(+q[1]-1);});
-    var sp=state.config.startMonth.split('-'),nowIdx=(+sp[0])*12+(+sp[1]-1);
+    var pidx=state.assignments.filter(function(a){return a.projectId===p.id&&(+a.pct)>0;}).map(function(a){return monthIdx(a.month);});
     var endIdx=pidx.length?Math.max.apply(null,pidx):null;
     var rem=endIdx==null?null:Math.max(0,endIdx-nowIdx+1);
     var remColor=rem==null?'var(--navy)':(rem<=0?'#a5342a':(rem<=1?'#b06a1a':'var(--navy)'));
@@ -666,7 +671,24 @@ function renderProjects(){
     grid.appendChild(el);
   });
 }
-Array.prototype.forEach.call(document.querySelectorAll('#projFilters .chip'),function(ch){ch.addEventListener('click',function(){document.querySelectorAll('#projFilters .chip').forEach(function(x){x.classList.remove('active');});ch.classList.add('active');projFilter=ch.getAttribute('data-f');renderProjects();});});
+function syncProjFilterChips(){
+  Array.prototype.forEach.call(document.querySelectorAll('#projFilters .chip'),function(x){
+    var f=x.getAttribute('data-f');
+    x.classList.toggle('active', f==='todos'?projFilter.length===PROJ_STATUSES.length:projFilter.indexOf(f)>=0);
+  });
+}
+Array.prototype.forEach.call(document.querySelectorAll('#projFilters .chip'),function(ch){ch.addEventListener('click',function(){
+  var f=ch.getAttribute('data-f');
+  if(f==='todos'){ projFilter=PROJ_STATUSES.slice(); }
+  else{
+    var idx=projFilter.indexOf(f);
+    if(idx>=0){ if(projFilter.length>1) projFilter.splice(idx,1); }
+    else{ projFilter.push(f); }
+  }
+  syncProjFilterChips();
+  renderProjects();
+});});
+syncProjFilterChips();
 Array.prototype.forEach.call(document.querySelectorAll('#consFilters .chip'),function(ch){ch.addEventListener('click',function(){document.querySelectorAll('#consFilters .chip').forEach(function(x){x.classList.remove('active');});ch.classList.add('active');consFilter=ch.getAttribute('data-cf');renderAlloc();});});
 
 /* ---- Editor de asignaciones por proyecto (desde Portafolio) ---- */
@@ -702,7 +724,7 @@ function renderEditor(){
   document.getElementById('consList').innerHTML='<thead><tr><th>Nombre</th><th>Área</th><th style="width:80px"></th></tr></thead><tbody>'+
     state.consultants.map(function(c){return '<tr><td><input value="'+esc(c.name)+'" data-edit="cname" data-id="'+c.id+'" style="width:100%"></td><td><select data-edit="carea" data-id="'+c.id+'">'+AREAS.map(function(a){return '<option value="'+a.id+'" '+(a.id===c.area?'selected':'')+'>'+a.name+'</option>';}).join('')+'</select></td><td><button class="btn danger sm" data-del="cons" data-id="'+c.id+'">Eliminar</button></td></tr>';}).join('')+'</tbody>';
   document.getElementById('projList').innerHTML='<thead><tr><th>Proyecto</th><th>Cliente</th><th>Estatus</th><th style="width:80px"></th></tr></thead><tbody>'+
-    state.projects.map(function(p){return '<tr><td><input value="'+esc(p.name)+'" data-edit="pname" data-id="'+p.id+'" style="width:100%"></td><td><input value="'+esc(p.client||'')+'" data-edit="pclient" data-id="'+p.id+'"></td><td><select data-edit="pstatus" data-id="'+p.id+'"><option value="activo" '+(p.status==='activo'?'selected':'')+'>Activo</option><option value="prospecto" '+(p.status==='prospecto'?'selected':'')+'>Prospecto</option></select></td><td><button class="btn danger sm" data-del="proj" data-id="'+p.id+'">Eliminar</button></td></tr>';}).join('')+'</tbody>';
+    state.projects.map(function(p){return '<tr><td><input value="'+esc(p.name)+'" data-edit="pname" data-id="'+p.id+'" style="width:100%"></td><td><input value="'+esc(p.client||'')+'" data-edit="pclient" data-id="'+p.id+'"></td><td><select data-edit="pstatus" data-id="'+p.id+'"><option value="activo" '+(p.status==='activo'?'selected':'')+'>Activo</option><option value="prospecto" '+(p.status==='prospecto'?'selected':'')+'>Prospecto</option><option value="cerrado" '+(p.status==='cerrado'?'selected':'')+'>Cerrado</option></select></td><td><button class="btn danger sm" data-del="proj" data-id="'+p.id+'">Eliminar</button></td></tr>';}).join('')+'</tbody>';
   var sc=document.getElementById('asigConsultant'),prev=sc.value;
   sc.innerHTML=state.consultants.map(function(c){return '<option value="'+c.id+'">'+c.name+'</option>';}).join(''); if(prev)sc.value=prev;
   document.getElementById('newAsigProject').innerHTML=state.projects.map(function(p){return '<option value="'+p.id+'">'+p.name+'</option>';}).join('');
@@ -773,7 +795,7 @@ document.getElementById('downloadTemplate').addEventListener('click',function(){
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{Nombre:'Ej. Juan Pérez',Area:'Consultor Finanzas'}]),'Consultores');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{Proyecto:'Ej. D365 Finance',Cliente:'Cliente X',Estatus:'activo'}]),'Proyectos');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{Consultor:'Ej. Juan Pérez',Proyecto:'Ej. D365 Finance',Mes:months[0],Porcentaje:80}]),'Asignaciones');
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['PLANTILLA DE CARGA · GRUPO STAFF'],[],['Consultores:','Nombre | Area (Consultor Finanzas / Consultor SCM / Desarrollador)'],['Proyectos:','Proyecto | Cliente | Estatus (activo / prospecto)'],['Asignaciones:','Consultor | Proyecto | Mes (AAAA-MM) | Porcentaje'],[],['Los nombres deben coincidir exactamente entre hojas.']]),'Instrucciones');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['PLANTILLA DE CARGA · GRUPO STAFF'],[],['Consultores:','Nombre | Area (Consultor Finanzas / Consultor SCM / Desarrollador)'],['Proyectos:','Proyecto | Cliente | Estatus (activo / prospecto / cerrado)'],['Asignaciones:','Consultor | Proyecto | Mes (AAAA-MM) | Porcentaje'],[],['Los nombres deben coincidir exactamente entre hojas.']]),'Instrucciones');
   XLSX.writeFile(wb,'Plantilla_Asignacion_GrupoStaff.xlsx');
 });
 document.getElementById('importXlsx').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(ev){try{importFromWorkbook(XLSX.read(ev.target.result,{type:'array'}));}catch(err){alert('No se pudo leer: '+err.message);}e.target.value='';};rd.readAsArrayBuffer(f);});
@@ -783,7 +805,7 @@ function importFromWorkbook(wb){
   if(!shC||!shP||!shA){alert('El archivo debe tener las hojas: Consultores, Proyectos y Asignaciones.');return;}
   var rc=XLSX.utils.sheet_to_json(shC),rp=XLSX.utils.sheet_to_json(shP),ra=XLSX.utils.sheet_to_json(shA);
   var cons=[],cmap={}; rc.forEach(function(r){var name=(r.Nombre||r.nombre||'').toString().trim();if(!name)return;var id=uid('c');cons.push({id:id,name:name,area:areaIdFromName(r.Area||r.area)});cmap[name.toLowerCase()]=id;});
-  var projs=[],pmap={}; rp.forEach(function(r,i){var name=(r.Proyecto||r.proyecto||'').toString().trim();if(!name)return;var id=uid('p');var st=(r.Estatus||r.estatus||'activo').toString().toLowerCase().indexOf('prosp')>=0?'prospecto':'activo';projs.push({id:id,name:name,client:(r.Cliente||r.cliente||'').toString().trim(),status:st,color:PALETTE[i%PALETTE.length]});pmap[name.toLowerCase()]=id;});
+  var projs=[],pmap={}; rp.forEach(function(r,i){var name=(r.Proyecto||r.proyecto||'').toString().trim();if(!name)return;var id=uid('p');var stRaw=(r.Estatus||r.estatus||'activo').toString().toLowerCase();var st=stRaw.indexOf('prosp')>=0?'prospecto':(stRaw.indexOf('cerr')>=0?'cerrado':'activo');projs.push({id:id,name:name,client:(r.Cliente||r.cliente||'').toString().trim(),status:st,color:PALETTE[i%PALETTE.length]});pmap[name.toLowerCase()]=id;});
   var asig=[]; ra.forEach(function(r){var cn=(r.Consultor||r.consultor||'').toString().trim().toLowerCase(),pn=(r.Proyecto||r.proyecto||'').toString().trim().toLowerCase(),m=(r.Mes||r.mes||'').toString().trim(),pct=parseInt(r.Porcentaje||r.porcentaje||r['%']||0,10);if(cmap[cn]&&pmap[pn]&&m&&pct>0)asig.push({consultantId:cmap[cn],projectId:pmap[pn],month:m,pct:pct});});
   if(!cons.length){alert('No se encontraron consultores en la hoja.');return;}
   var starts=asig.map(function(a){return a.month;}).filter(Boolean).sort();
