@@ -347,6 +347,7 @@ var PALETTE = ['#2b8fd0','#39bec9','#5cb85c','#e8722a','#f4c430','#8e6fd0','#d05
 var STORAGE_KEY = 'gstaff_vault_v1';
 var CFG_KEY = 'gstaff_gh_cfg';
 var TOKEN_KEY = 'gstaff_gh_token';
+var SESSION_KEY = 'gstaff_session_dek';
 var DATA_FILE = 'data.json';
 var state = null;
 var ghCfg = loadCfg();
@@ -539,6 +540,7 @@ function bindAuth(mode){
   ['auPass','auPass2'].forEach(function(id){var el=document.getElementById(id); if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter')submit();});});
 }
 function onAuthed(){
+  try{ sessionStorage.setItem(SESSION_KEY, ab2b64(dekRaw)); }catch(e){}
   document.getElementById('authScreen').style.display='none';
   fillGhForm();
   document.getElementById('startMonth').value=state.config.startMonth;
@@ -546,16 +548,28 @@ function onAuthed(){
   if(vaultUsers.length===1 && !ghToken()) setStatus('info','Datos cifrados en este navegador. Ve a Configuración, pon el token y pulsa “Publicar ahora” para guardar cifrado en GitHub.');
   else setStatus(ghToken()?'ok':'read', ghToken()?'Sesión iniciada. Los cambios se publican cifrados.':'Sesión iniciada. Configura el token para publicar.');
 }
+function tryResumeSession(){
+  var raw=null; try{ var s=sessionStorage.getItem(SESSION_KEY); if(s) raw=b642ab(s); }catch(e){}
+  if(!raw || !vaultEnc) return Promise.reject(new Error('sin sesión guardada'));
+  return importDek(raw).then(function(k){ DATA_KEY=k; dekRaw=raw; return aesDec(DATA_KEY,vaultEnc.iv,vaultEnc.ct); }).then(function(pt){
+    state=normalize(JSON.parse(td(pt)));
+    lastVaultJson=JSON.stringify({protected:true,v:1,users:vaultUsers,enc:vaultEnc});
+  });
+}
+function resumeOrAskLogin(){
+  if(!vaultUsers.length){ showAuth('setup'); return; }
+  tryResumeSession().then(onAuthed).catch(function(){ try{sessionStorage.removeItem(SESSION_KEY);}catch(e){} showAuth('login'); });
+}
 function bootstrapAuth(){
   var cachedVault=null; try{var c=localStorage.getItem(STORAGE_KEY); if(c)cachedVault=JSON.parse(c);}catch(e){}
   fetch(DATA_FILE+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():null;}).then(function(txt){
     var j=null; if(txt){try{j=JSON.parse(txt);}catch(e){}}
     if(!j && cachedVault) j=cachedVault;
-    if(j && j.protected){ vaultUsers=j.users||[]; vaultEnc=j.enc; showAuth(vaultUsers.length?'login':'setup'); }
+    if(j && j.protected){ vaultUsers=j.users||[]; vaultEnc=j.enc; resumeOrAskLogin(); }
     else if(j && j.consultants){ initialPayload=normalize(j); showAuth('setup'); }
     else { initialPayload=seed(); showAuth('setup'); }
   }).catch(function(){
-    if(cachedVault && cachedVault.protected){ vaultUsers=cachedVault.users||[]; vaultEnc=cachedVault.enc; showAuth(vaultUsers.length?'login':'setup'); }
+    if(cachedVault && cachedVault.protected){ vaultUsers=cachedVault.users||[]; vaultEnc=cachedVault.enc; resumeOrAskLogin(); }
     else { initialPayload=seed(); showAuth('setup'); }
   });
 }
@@ -845,7 +859,7 @@ document.getElementById('ghClear').addEventListener('click',function(){localStor
 function renderUsers(){var el=document.getElementById('usersList');if(!el)return;el.innerHTML='<thead><tr><th>Usuario</th><th style="width:90px"></th></tr></thead><tbody>'+vaultUsers.map(function(u,i){return '<tr><td>'+esc(u.u)+'</td><td>'+(vaultUsers.length>1?'<button class="btn danger sm" data-deluser="'+i+'">Quitar</button>':'<span style="color:var(--muted);font-size:11px">único</span>')+'</td></tr>';}).join('')+'</tbody>';}
 document.getElementById('addUserBtn').addEventListener('click',function(){var u=(document.getElementById('nuUser').value||'').trim(),p=document.getElementById('nuPass').value||'';if(!u||!p){alert('Usuario y contraseña requeridos.');return;}if(p.length<6){alert('La contraseña debe tener al menos 6 caracteres.');return;}addUser(u,p).then(function(){document.getElementById('nuUser').value='';document.getElementById('nuPass').value='';renderUsers();setStatus('ok','Usuario agregado'+(ghToken()?' · publicando…':'.'));}).catch(function(e){alert((e&&e.message)?e.message:(''+e));});});
 document.getElementById('usersList').addEventListener('click',function(e){var b=e.target.closest?e.target.closest('[data-deluser]'):null;if(!b)return;var i=+b.getAttribute('data-deluser');var u=vaultUsers[i];if(!u)return;if(vaultUsers.length<=1){alert('Debe quedar al menos un usuario.');return;}if(confirm('¿Quitar al usuario '+u.u+'?')){removeUser(u.u).then(function(){renderUsers();setStatus('ok','Usuario eliminado.');}).catch(function(er){alert((er&&er.message)?er.message:(''+er));});}});
-document.getElementById('logoutBtn').addEventListener('click',function(){if(confirm('¿Cerrar sesión?')){location.reload();}});
+document.getElementById('logoutBtn').addEventListener('click',function(){if(confirm('¿Cerrar sesión?')){try{sessionStorage.removeItem(SESSION_KEY);}catch(e){} location.reload();}});
 
 /* ============================ NAV & INIT ============================ */
 Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});t.classList.add('active');var v=t.getAttribute('data-view');document.getElementById('view-'+v).classList.add('active');if(v==='editor')renderEditor();if(v==='config'){fillGhForm();renderUsers();document.getElementById('startMonth2').value=state.config.startMonth;}});});
